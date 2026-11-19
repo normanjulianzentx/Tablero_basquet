@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Manual de Operación y Configuración - Tablero Deportivo</title>
+<style>
+  @page { size: A4 portrait; margin: 10mm 12mm; }
+  * { box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    color: #0f172a; margin: 0; padding: 0; background: #fff; font-size: 9pt; line-height: 1.35;
+  }
+  .header {
+    border-bottom: 2px solid #0284c7; padding-bottom: 6px; margin-bottom: 12px;
+    display: flex; justify-content: space-between; align-items: flex-end;
+  }
+  .header h1 { font-size: 16pt; margin: 0; color: #0f172a; font-weight: 800; }
+  .header .sub { font-size: 8.5pt; color: #64748b; margin-top: 2px; }
+  .badge { background: #0284c7; color: #fff; padding: 3px 8px; border-radius: 4px; font-weight: bold; font-size: 8pt; }
+  
+  h2 {
+    font-size: 11pt; color: #0369a1; border-left: 4px solid #0284c7; padding-left: 6px;
+    margin: 12px 0 6px; text-transform: uppercase; font-weight: 700;
+  }
+  table { width: 100%; border-collapse: collapse; margin-bottom: 10px; font-size: 8.5pt; }
+  th, td { border: 1px solid #cbd5e1; padding: 5px 7px; text-align: left; }
+  th { background: #f1f5f9; color: #0f172a; font-weight: 700; }
+  tr:nth-child(even) { background: #f8fafc; }
+
+  .box {
+    border: 1px solid #cbd5e1; border-radius: 6px; padding: 8px 10px; margin-bottom: 10px;
+    background: #f8fafc;
+  }
+  .box-title { font-weight: 700; font-size: 9pt; margin-bottom: 4px; color: #0f172a; }
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
+  
+  .color-pill {
+    display: inline-block; width: 10px; height: 10px; border-radius: 50%;
+    margin-right: 4px; vertical-align: middle; border: 1px solid #94a3b8;
+  }
+  .tag { font-family: monospace; font-size: 8pt; background: #e2e8f0; padding: 1px 4px; border-radius: 3px; font-weight: 600; }
+  .alert-box { border-left: 4px solid #16a34a; background: #f0fdf4; padding: 6px 10px; font-size: 8.5pt; color: #166534; }
+  .alert-warn { border-left: 4px solid #eab308; background: #fefce8; padding: 6px 10px; font-size: 8.5pt; color: #854d0e; }
+  
+  ul { margin: 4px 0 6px; padding-left: 18px; }
+  li { margin-bottom: 2px; }
+</style>
+</head>
+<body>
+
+  <div class="header">
+    <div>
+      <h1>TABLERO DEPORTIVO MULTIDISCIPLINA</h1>
+      <div class="sub">Guía de Operación: Teclado Físico de Mano + Control Wi-Fi desde Celular</div>
+    </div>
+    <span class="badge">ESP32-C3 SuperMini</span>
+  </div>
+
+  <h2>1. Funciones del Teclado Físico (Pulsadores a GND)</h2>
+  <table>
+    <thead>
+      <tr>
+        <th style="width:14%;">Botón</th>
+        <th style="width:12%;">Pin GPIO</th>
+        <th style="width:24%;">Pulsación Normal (Toque)</th>
+        <th style="width:24%;">Con SHIFT (Toque corto)</th>
+        <th style="width:26%;">Con SHIFT (Sostenido &gt;3.5s)</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><b>TIEMPO</b></td>
+        <td><span class="tag">GPIO 0</span></td>
+        <td><b>Start / Pausa</b> del reloj</td>
+        <td><b>Restar 30 segundos (-30s)</b></td>
+        <td><b>Ciclar Duración de Cuarto</b><br>(5 &rarr; 10 &rarr; 12 &rarr; 15 &rarr; 20 min)</td>
+      </tr>
+      <tr>
+        <td><b>LOCAL</b></td>
+        <td><span class="tag">GPIO 1</span></td>
+        <td><b>+1 Punto</b> Local</td>
+        <td>Restar 1 punto (-1)</td>
+        <td><b>🎨 Cambiar Color Local</b><br>(Sostener &gt;3.5s o desde web)</td>
+      </tr>
+      <tr>
+        <td><b>VISITA</b></td>
+        <td><span class="tag">GPIO 2</span></td>
+        <td><b>+1 Punto</b> Visita</td>
+        <td>Restar 1 punto (-1)</td>
+        <td><b>🎨 Cambiar Color Visita</b><br>(Sostener &gt;3.5s o desde web)</td>
+      </tr>
+      <tr>
+        <td><b>PERÍODO</b></td>
+        <td><span class="tag">GPIO 3</span></td>
+        <td><b>+1 Período</b> (1..9)<br><i>Recarga tiempo seteado</i></td>
+        <td>Restar 1 período (-1)</td>
+        <td><b>Cambiar Deporte</b><br>(🏀 Básquet &harr; ⚽ Futsal)</td>
+      </tr>
+      <tr>
+        <td><b>FALTA LOC</b></td>
+        <td><span class="tag">GPIO 4</span></td>
+        <td><b>+1 Falta</b> Local</td>
+        <td>Restar 1 falta (-1)</td>
+        <td>—</td>
+      </tr>
+      <tr>
+        <td><b>FALTA VIS</b></td>
+        <td><span class="tag">GPIO 5</span></td>
+        <td><b>+1 Falta</b> Visita</td>
+        <td>Restar 1 falta (-1)</td>
+        <td>—</td>
+      </tr>
+      <tr>
+        <td><b>BOCINA</b></td>
+        <td><span class="tag">GPIO 6</span></td>
+        <td><b>Sirena manual</b> (1.5 seg)</td>
+        <td><b>Modo Test de Dígitos</b><br>(Cuenta 0..8 y test RGB)</td>
+        <td><b>🔄 REINICIO GENERAL</b><br>(Pone marcador a 0-0)</td>
+      </tr>
+      <tr>
+        <td><b>SHIFT</b></td>
+        <td><span class="tag">GPIO 7</span></td>
+        <td colspan="3"><b>Tecla Modificadora Maestra:</b> Mantener presionada mientras se presiona otra tecla (toque corto = resta puntos/faltas/30s; sostener &gt;3.5s = configuraciones).</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="alert-box">
+    <b>Reglamento de Faltas:</b> En <b>Básquet</b>, las faltas 1, 2 y 3 encienden en Ámbar; al llegar a la <b>4ta falta</b> se enciende en <b>ROJO</b>, y la <b>5ta falta</b> también en <b>ROJO</b> indicando penalidad (tiros libres). En <b>Futsal</b>, 1 a 4 en Ámbar y 5ta/6ta en ROJO (tiro libre sin barrera).
+  </div>
+
+  <h2>2. Paleta de Colores de Marcador (Selección Directa Web o Teclado)</h2>
+  <div class="box">
+    Tanto desde el teclado físico (<span class="tag">SHIFT + LOCAL / VISITA &gt;3.5s</span>) como desde los botones táctiles de la página web, podés cambiar los colores para coincidir con las camisetas de los clubes:
+    <div style="margin-top:6px; display:flex; flex-wrap:wrap; gap:12px;">
+      <span><span class="color-pill" style="background:#ff8200;"></span><b>1: Ámbar / Naranja</b></span>
+      <span><span class="color-pill" style="background:#00dc28;"></span><b>2: Verde Deportivo</b></span>
+      <span><span class="color-pill" style="background:#00a0ff;"></span><b>3: Celeste / Cyan</b></span>
+      <span><span class="color-pill" style="background:#ff0000;"></span><b>4: Rojo Vivo</b></span>
+      <span><span class="color-pill" style="background:#ffffff;"></span><b>5: Blanco Puro</b></span>
+      <span><span class="color-pill" style="background:#ffe600;"></span><b>6: Amarillo</b></span>
+      <span><span class="color-pill" style="background:#c800ff;"></span><b>7: Magenta / Violeta</b></span>
+    </div>
+  </div>
+
+  <h2>3. Control Inalámbrico y Actualización OTA desde Celular / PC</h2>
+  <div class="grid-2">
+    <div class="box">
+      <div class="box-title">📶 Conexión Wi-Fi Segura:</div>
+      <ul>
+        <li>Red Wi-Fi privada y discreta: <b>ZenTX-B</b>.</li>
+        <li>Contraseña de seguridad WPA2: <span class="tag">12345678</span>.</li>
+        <li>Límite estricto de clientes para evitar interferencias o saturación en el gimnasio.</li>
+        <li>Abrí el navegador y entrá a: <b>http://192.168.4.1</b></li>
+      </ul>
+    </div>
+    <div class="box">
+      <div class="box-title">📦 Actualización de Firmware por Aire (OTA):</div>
+      <ul>
+        <li><b>¡Sin cables ni botones BOOT!</b></li>
+        <li>Entrá desde tu celular o notebook a: <b>http://192.168.4.1/update</b></li>
+        <li>Seleccioná el archivo <b>firmware.bin</b> y hacé clic en <i>Subir y Flashear</i>.</li>
+        <li>El control se reprograma y reinicia en 5 segundos automáticamente.</li>
+      </ul>
+    </div>
+  </div>
+
+  <h2>4. Memoria Permanente (NVS Flash)</h2>
+  <div class="box">
+    Al cortar la alimentación o apagar el equipo, el sistema <b>recuerda automáticamente</b>:
+    <ul>
+      <li><b>El Deporte Activo:</b> Si quedó en Básquetbol o en Futsal.</li>
+      <li><b>La Duración del Cuarto:</b> (ej: 10 min, 12 min NBA o 20 min). Al avanzar al siguiente período con <b>+ Período</b>, el reloj recarga exactamente ese tiempo automáticamente.</li>
+      <li><b>Los Colores del Marcador:</b> El color elegido para el equipo Local y Visita.</li>
+    </ul>
+  </div>
+
+</body>
+</html>
+

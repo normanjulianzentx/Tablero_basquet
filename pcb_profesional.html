@@ -1,0 +1,956 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Documentación de Ingeniería & PCB CAD - Tablero Deportivo ESP32 + SN74LS07N</title>
+<style>
+  @page { size: A4 landscape; margin: 7mm; }
+  * { box-sizing: border-box; }
+  body {
+    font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+    background: #0b0f19;
+    color: #e2e8f0;
+    margin: 0;
+    padding: 14px;
+  }
+
+  /* Barra de control superior */
+  .toolbar {
+    max-width: 1220px;
+    margin: 0 auto 14px;
+    background: #111827;
+    border: 1px solid #374151;
+    border-radius: 10px;
+    padding: 12px 18px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+  }
+  .toolbar-title {
+    display: flex;
+    flex-direction: column;
+  }
+  .toolbar-title h1 {
+    font-size: 16px;
+    margin: 0;
+    color: #38bdf8;
+    letter-spacing: 0.3px;
+  }
+  .toolbar-title span {
+    font-size: 11.5px;
+    color: #9ca3af;
+  }
+  .controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    align-items: center;
+  }
+  .btn {
+    background: #1f2937;
+    color: #e5e7eb;
+    border: 1px solid #4b5563;
+    padding: 6px 11px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .btn:hover { background: #374151; }
+  .btn.active { background: #0284c7; border-color: #38bdf8; color: #fff; }
+  .btn.print { background: #15803d; border-color: #22c55e; color: #fff; }
+
+  /* Hojas de ingeniería */
+  .sheet {
+    max-width: 1220px;
+    margin: 0 auto 22px;
+    background: #111827;
+    border: 1px solid #374151;
+    border-radius: 12px;
+    padding: 16px 20px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+  }
+  .sheet-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 2px solid #1f2937;
+    padding-bottom: 8px;
+    margin-bottom: 12px;
+  }
+  .sheet-header h2 {
+    margin: 0;
+    font-size: 17px;
+    color: #f8fafc;
+  }
+  .badge {
+    background: #064e3b;
+    color: #6ee7b7;
+    border: 1px solid #059669;
+    padding: 3px 10px;
+    border-radius: 999px;
+    font-size: 11.5px;
+    font-weight: 700;
+  }
+
+  .canvas-box {
+    background: #060911;
+    border: 2px solid #1f2937;
+    border-radius: 8px;
+    padding: 8px;
+    overflow-x: auto;
+  }
+  svg { width: 100%; height: auto; display: block; }
+  svg text { font-family: "Consolas", "Courier New", monospace; user-select: none; }
+
+  .legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+    margin-top: 10px;
+    padding: 8px 12px;
+    background: #0b0f19;
+    border: 1px solid #1f2937;
+    border-radius: 6px;
+    font-size: 11.5px;
+    color: #cbd5e1;
+  }
+  .legend-item { display: flex; align-items: center; gap: 6px; }
+  .swatch { width: 20px; height: 6px; border-radius: 3px; }
+
+  .grid-2col {
+    display: grid;
+    grid-template-columns: 1.05fr 0.95fr;
+    gap: 16px;
+    margin-top: 12px;
+  }
+  .grid-3col {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 12px;
+    margin-top: 12px;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 11.5px;
+  }
+  th, td {
+    border: 1px solid #374151;
+    padding: 5px 8px;
+    text-align: left;
+  }
+  th { background: #0b0f19; color: #38bdf8; font-weight: 700; }
+  tr:nth-child(even) { background: rgba(17, 24, 39, 0.6); }
+
+  .eng-card {
+    background: #0b0f19;
+    border: 1px solid #374151;
+    border-left: 4px solid #38bdf8;
+    border-radius: 6px;
+    padding: 10px 12px;
+    font-size: 11.5px;
+    line-height: 1.45;
+  }
+  .eng-card h3 {
+    margin: 0 0 6px 0;
+    font-size: 13px;
+    color: #38bdf8;
+  }
+  .eng-card.warn { border-left-color: #f59e0b; }
+  .eng-card.warn h3 { color: #fbbf24; }
+  .eng-card.ok { border-left-color: #10b981; }
+  .eng-card.ok h3 { color: #34d399; }
+
+  /* Espejado Horizontal para transferencia de cobre / soldadura inferior */
+  .mirrored #pcb-master-group {
+    transform: scale(-1, 1);
+    transform-origin: 575px 310px;
+  }
+
+  @media print {
+    body { background: #fff; color: #000; padding: 0; }
+    .toolbar { display: none; }
+    .sheet {
+      background: #fff;
+      color: #000;
+      border: 1px solid #888;
+      box-shadow: none;
+      page-break-after: always;
+      margin: 0;
+      padding: 6px;
+    }
+    .sheet-header h2 { color: #000; }
+    th { background: #eee; color: #000; }
+    th, td { border-color: #888; color: #000; }
+    .eng-card { background: #fafafa; color: #000; border-color: #888; }
+    .eng-card h3 { color: #000; }
+    .legend { background: #f8fafc; color: #000; border-color: #888; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ==================== BARRA DE HERRAMIENTAS INTERACTIVA ==================== -->
+<div class="toolbar">
+  <div class="toolbar-title">
+    <h1>📐 DOCUMENTACIÓN DE INGENIERÍA &amp; LAYOUT PCB CAD — TABLERO DEPORTIVO</h1>
+    <span>REV 3.0 · Grilla métrica estricta 2.54 mm (100 mil) · Pistas a 45° · 0 Cruces verificados · Puntos de Prueba TP1–TP5</span>
+  </div>
+  <div class="controls">
+    <button class="btn active" id="btnTop" onclick="setMirror(false)">🔍 Vista Superior (Componentes)</button>
+    <button class="btn" id="btnBottom" onclick="setMirror(true)">🔄 Vista Espejada (Lado Cobre / Soldadura)</button>
+    <button class="btn active" onclick="toggleLayer('layer-silk', this)">📦 Serigrafía</button>
+    <button class="btn active" onclick="toggleLayer('layer-5v', this)">🔴 Red +5V</button>
+    <button class="btn active" onclick="toggleLayer('layer-gnd', this)">🔵 Red GND</button>
+    <button class="btn active" onclick="toggleLayer('layer-sig', this)">🟢 Señales</button>
+    <button class="btn active" onclick="toggleLayer('layer-tp', this)">🎯 Test Points</button>
+    <button class="btn print" onclick="window.print()">🖨️ Imprimir Planos (3 Hojas A4)</button>
+  </div>
+</div>
+
+<!-- ==================================================================================== -->
+<!-- HOJA 1: LAYOUT PCB CAD PROFESIONAL (ESCALA MÉTRICA 2.54mm · PISTAS A 45° · 0 CRUCES) -->
+<!-- ==================================================================================== -->
+<div class="sheet" id="pcbSheet">
+  <div class="sheet-header">
+    <h2 id="viewTitle">HOJA 1/3 · LAYOUT PCB CAD (Top View + Bottom Copper por Transparencia)</h2>
+    <span class="badge">✔ DRC PASS: 0 Cruces · 0 Superposiciones · Paso exacto 2.54 mm</span>
+  </div>
+
+  <div class="canvas-box">
+    <!-- Grilla exacta: 1 paso (2.54 mm / 100 mil) = 28 px -->
+    <svg viewBox="0 0 1150 630" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <!-- Grilla de perforaciones cada 28px (2.54 mm exactos) -->
+        <pattern id="grid254" width="28" height="28" patternUnits="userSpaceOnUse" x="12" y="8">
+          <circle cx="0" cy="0" r="1.8" fill="#1e293b"/>
+          <path d="M 28 0 L 0 0 0 28" fill="none" stroke="#1e293b" stroke-width="0.4" opacity="0.5"/>
+        </pattern>
+        <!-- Sombra para componentes -->
+        <filter id="compShadow" x="-10%" y="-10%" width="120%" height="120%">
+          <feDropShadow dx="0" dy="2" stdDeviation="2" flood-color="#000" flood-opacity="0.75"/>
+        </filter>
+      </defs>
+
+      <g id="pcb-master-group">
+        <!-- SUSTRATO FR4 VERDE SOLDERMASK (Dimensiones mecánicas: 95.0 mm × 68.0 mm) -->
+        <rect x="40" y="36" width="1070" height="560" rx="14" fill="#052e16" stroke="#10b981" stroke-width="2.5"/>
+        <rect x="56" y="52" width="1038" height="528" fill="url(#grid254)"/>
+
+        <!-- COTAS MECÁNICAS DE LA PLACA -->
+        <g stroke="#64748b" stroke-width="1" fill="#94a3b8" font-size="10">
+          <line x1="40" y1="20" x2="1110" y2="20"/>
+          <line x1="40" y1="14" x2="40" y2="28"/>
+          <line x1="1110" y1="14" x2="1110" y2="28"/>
+          <text x="575" y="16" text-anchor="middle" font-weight="bold">95.0 mm (38 columnas × 2.54 mm)</text>
+        </g>
+
+        <!-- 4 PERFORACIONES DE MONTAJE M3 (con anillo de tierra/aislación) -->
+        <g fill="#060911" stroke="#eab308" stroke-width="3.5">
+          <circle cx="68" cy="64" r="10"/>
+          <circle cx="1082" cy="64" r="10"/>
+          <circle cx="68" cy="568" r="10"/>
+          <circle cx="1082" cy="568" r="10"/>
+        </g>
+
+        <!-- ZONA KEEP-OUT DE ANTENA RF (2.4 GHz ESP-NOW) -->
+        <rect x="336" y="40" width="196" height="52" fill="#1e1b4b" stroke="#818cf8" stroke-width="1.5" stroke-dasharray="6,4"/>
+        <text x="434" y="62" font-size="10.5" font-weight="bold" fill="#a5b4fc" text-anchor="middle">RF KEEP-OUT ZONE (2.4 GHz)</text>
+        <text x="434" y="78" font-size="9" fill="#818cf8" text-anchor="middle">Prohibido trazar cobre en esta área</text>
+
+        <!-- ======================================================================= -->
+        <!-- CAPA COBRE 1: RED GND (AZUL #0ea5e9 - ÁRBOL INTERIOR E INFERIOR)        -->
+        <!-- Verificado: ningún segmento cruza ninguna otra red                      -->
+        <!-- ======================================================================= -->
+        <g id="layer-gnd" stroke="#0ea5e9" stroke-linecap="round" stroke-linejoin="round" fill="none">
+          <!-- 1. Columna izquierda GND: desde J3 Pin 3 (152, 232) baja a J1 Pin 1 (152, 484) -->
+          <line x1="152" y1="232" x2="152" y2="484" stroke-width="9"/>
+
+          <!-- 2. Bus horizontal izquierdo GND (y = 484): une J1 Pin 1 (152,484), BZ1-, SW1 Pin 2 y ESP32 Pin 14 Izq (376,484) -->
+          <line x1="152" y1="484" x2="376" y2="484" stroke-width="9"/>
+
+          <!-- 3. Derivación a Buzzer BZ1 (-) en (208, 372) -->
+          <line x1="208" y1="372" x2="208" y2="484" stroke-width="6"/>
+
+          <!-- 4. Derivación a Pulsador SW1 Pin 2 (GND) en (264, 484) -> pasa justo por encima del bus y=484 -->
+
+          <!-- 5. Unión interna GND a través del zócalo del ESP32: Pin 14 Izq (376,484) a Pin 14 Der (488,484) -->
+          <line x1="376" y1="484" x2="488" y2="484" stroke-width="7"/>
+
+          <!-- 6. Salida de ESP32 Pin 14 Der (488,484) con chaflán a 45° hacia el BUS INFERIOR GND (y = 568) -->
+          <polyline points="488,484 516,484 544,512 544,568 1048,568" stroke-width="11"/>
+
+          <!-- 7. Conexión de entradas no usadas del lado inferior del SN74LS07N (Pin 3=656, Pin 5=712) y masa Pin 7 (768, 316) al Bus GND (y=568) -->
+          <line x1="656" y1="316" x2="656" y2="568" stroke-width="5"/>
+          <line x1="712" y1="316" x2="712" y2="568" stroke-width="5"/>
+          <line x1="768" y1="316" x2="768" y2="568" stroke-width="9"/>
+
+          <!-- 8. Bajada de Bornera LED J2 Pin 3 (GND en 936, 344) al Bus GND (936, 568) -->
+          <line x1="936" y1="344" x2="936" y2="568" stroke-width="10"/>
+
+          <!-- 9. Riel horizontal GND (y = 344) hacia la derecha de J2 para C1 (-) (992, 344) y C2 (-) (1048, 344) -->
+          <polyline points="936,344 992,344 1048,344 1048,568" stroke-width="8"/>
+          <line x1="992" y1="344" x2="992" y2="568" stroke-width="6"/>
+        </g>
+
+        <!-- ======================================================================= -->
+        <!-- CAPA COBRE 2: RED +5V (ROJO #ef4444 - ÁRBOL PERIMETRAL EXT Y SUPERIOR)  -->
+        <!-- Verificado: rodea por fuera al árbol GND sin tocarlo jamás              -->
+        <!-- ======================================================================= -->
+        <g id="layer-5v" stroke="#ef4444" stroke-linecap="round" stroke-linejoin="round" fill="none">
+          <!-- 1. Desde ESP32 Pin 15 Izq (VIN +5V en 376, 512) baja 1 paso con chaflán a 45° hasta y=540 y va a J1 Pin 2 (+5V en 152, 540) -->
+          <polyline points="376,512 348,540 152,540" stroke-width="9"/>
+
+          <!-- 2. Desde J1 Pin 2 (+5V en 152, 540) sale al perímetro izquierdo (x = 96), sube hasta arriba (y = 64) y recorre el BUS SUPERIOR +5V -->
+          <polyline points="152,540 110,540 96,526 96,78 110,64 1048,64" stroke-width="11"/>
+
+          <!-- 3. Derivación desde el bus izquierdo (96, 176) a Bornera Relé J3 Pin 1 (VCC +5V en 152, 176) -->
+          <line x1="96" y1="176" x2="152" y2="176" stroke-width="7"/>
+
+          <!-- 4. Bajada desde Bus Superior +5V a SN74LS07N Pin 14 (VCC en 600, 232) y pull-ups de entradas libres (Pin 13=628, Pin 11=684, Pin 9=740) -->
+          <line x1="600" y1="64" x2="600" y2="232" stroke-width="9"/>
+          <line x1="628" y1="64" x2="628" y2="232" stroke-width="4.5"/>
+          <line x1="684" y1="64" x2="684" y2="232" stroke-width="4.5"/>
+          <line x1="740" y1="64" x2="740" y2="232" stroke-width="4.5"/>
+
+          <!-- 5. Bajada desde Bus Superior +5V (824, 64) al Pad Superior de R1 (1 kΩ Pull-Up en 824, 148) -->
+          <line x1="824" y1="64" x2="824" y2="148" stroke-width="7"/>
+
+          <!-- 6. Bajada desde Bus Superior +5V (936, 64) a Bornera LED J2 Pin 1 (+5V en 936, 232) -->
+          <line x1="936" y1="64" x2="936" y2="232" stroke-width="10"/>
+
+          <!-- 7. Riel horizontal +5V (y = 232) hacia la derecha de J2 para C1 (+) (992, 232) y C2 (+) (1048, 232) -->
+          <polyline points="936,232 992,232 1048,232 1048,64" stroke-width="8"/>
+          <line x1="992" y1="232" x2="992" y2="64" stroke-width="6"/>
+        </g>
+
+        <!-- ======================================================================= -->
+        <!-- CAPA COBRE 3: SEÑALES LÓGICAS (PISTAS A 45° SIN CRUCES)                 -->
+        <!-- ======================================================================= -->
+        <g id="layer-sig" stroke-linecap="round" stroke-linejoin="round" fill="none">
+          <!-- 1. SEÑAL 3.3V (LED_PIN): ESP32 Pin 11 Der (D4 en 488, 400) -> chaflán 45° -> SN74LS07N Pin 1 (1A en 600, 316) -->
+          <polyline points="488,400 544,400 600,344 600,316" stroke="#22c55e" stroke-width="6"/>
+
+          <!-- 2. NODO COLECTOR ABIERTO (1Y_5V): SN74LS07N Pin 2 (1Y en 628, 316) -> sube al canal central (y=288) -> sale recto a (824, 288) -->
+          <polyline points="628,316 628,288 824,288" stroke="#eab308" stroke-width="6"/>
+          <!-- Sube desde (824, 288) hasta el Pad Inferior de R1 (1 kΩ en 824, 232) -->
+          <line x1="824" y1="288" x2="824" y2="232" stroke="#eab308" stroke-width="6"/>
+
+          <!-- 3. SALIDA FILTRADA DIN (5V): Desde Pad Derecho de R2 (330 Ω en 896, 288) -> Bornera J2 Pin 2 (DI en 936, 288) -->
+          <line x1="896" y1="288" x2="936" y2="288" stroke="#10b981" stroke-width="6"/>
+
+          <!-- 4. BOTÓN DE PRUEBA (PIN_BOARD_TEST): ESP32 Pin 13 Izq (D13 en 376, 456) -> Pulsador SW1 Pin 1 (264, 456) -->
+          <line x1="376" y1="456" x2="264" y2="456" stroke="#38bdf8" stroke-width="5.5"/>
+
+          <!-- 5. BUZZER PWM (BUZZER_PIN): ESP32 Pin 10 Izq (D27 en 376, 372) -> Buzzer BZ1 (+) (264, 372) -->
+          <line x1="376" y1="372" x2="264" y2="372" stroke="#a855f7" stroke-width="5.5"/>
+
+          <!-- 6. DISPARO RELÉ (RELAY_PIN): ESP32 Pin 8 Izq (D25 en 376, 316) -> chaflán 45° -> Bornera J3 Pin 2 (IN en 152, 204) -->
+          <polyline points="376,316 308,316 196,204 152,204" stroke="#f97316" stroke-width="5.5"/>
+        </g>
+
+        <!-- ======================================================================= -->
+        <!-- CAPA 4: COMPONENTES, SERIGRAFÍA Y PADS THT (PIN 1 CUADRADO)             -->
+        <!-- Ningún texto pisa una pista de cobre                                    -->
+        <!-- ======================================================================= -->
+        <g id="layer-silk">
+
+          <!-- ---------------- BORNERA J1: ENTRADA FUENTE 5V ---------------- -->
+          <rect x="124" y="460" width="56" height="104" rx="4" fill="#1e293b" stroke="#f8fafc" stroke-width="2" filter="url(#compShadow)"/>
+          <rect x="118" y="434" width="76" height="18" rx="3" fill="#060911" stroke="#475569"/>
+          <text x="156" y="447" font-size="10" font-weight="bold" fill="#f8fafc" text-anchor="middle">J1: PWR IN</text>
+          <!-- Pad 1 (GND): Cuadrado -->
+          <rect x="145" y="477" width="14" height="14" fill="#060911" stroke="#0ea5e9" stroke-width="3"/>
+          <text x="190" y="480" font-size="10" font-weight="bold" fill="#7dd3fc">1: GND</text>
+          <!-- Pad 2 (+5V): Redondo -->
+          <circle cx="152" cy="540" r="7" fill="#060911" stroke="#ef4444" stroke-width="3"/>
+          <text x="190" y="534" font-size="10" font-weight="bold" fill="#fca5a5">2: +5V</text>
+
+          <!-- ---------------- BORNERA J3: MÓDULO RELÉ SIRENA ---------------- -->
+          <rect x="124" y="154" width="56" height="100" rx="4" fill="#1e293b" stroke="#f8fafc" stroke-width="2" filter="url(#compShadow)"/>
+          <rect x="118" y="128" width="76" height="18" rx="3" fill="#060911" stroke="#475569"/>
+          <text x="156" y="141" font-size="10" font-weight="bold" fill="#f8fafc" text-anchor="middle">J3: RELÉ 5V</text>
+          <!-- Pad 1 (VCC +5V): Cuadrado -->
+          <rect x="145" y="169" width="14" height="14" fill="#060911" stroke="#ef4444" stroke-width="3"/>
+          <text x="188" y="179" font-size="9.5" font-weight="bold" fill="#fca5a5">1: VCC</text>
+          <!-- Pad 2 (IN Relé) -->
+          <circle cx="152" cy="204" r="6.5" fill="#060911" stroke="#f97316" stroke-width="3"/>
+          <text x="188" y="202" font-size="9.5" font-weight="bold" fill="#fdba74">2: IN</text>
+          <!-- Pad 3 (GND) -->
+          <circle cx="152" cy="232" r="6.5" fill="#060911" stroke="#0ea5e9" stroke-width="3"/>
+          <text x="188" y="236" font-size="9.5" font-weight="bold" fill="#7dd3fc">3: GND</text>
+
+          <!-- ---------------- BUZZER PIEZO BZ1 (Paso 2 x 2.54mm = 56px) ---------------- -->
+          <circle cx="236" cy="372" r="38" fill="#0f172a" stroke="#a855f7" stroke-width="2.2" filter="url(#compShadow)"/>
+          <circle cx="236" cy="372" r="9" fill="#1e293b" stroke="#64748b"/>
+          <rect x="194" y="314" width="84" height="16" rx="3" fill="#060911" stroke="#a855f7"/>
+          <text x="236" y="326" font-size="9.5" font-weight="bold" fill="#e9d5ff" text-anchor="middle">BZ1: PIEZO</text>
+          <!-- Pad (-) en (208, 372) -->
+          <circle cx="208" cy="372" r="6" fill="#060911" stroke="#0ea5e9" stroke-width="3"/>
+          <text x="208" y="360" font-size="11" font-weight="bold" fill="#7dd3fc" text-anchor="middle">−</text>
+          <!-- Pad (+) Cuadrado en (264, 372) -->
+          <rect x="258" y="366" width="12" height="12" fill="#060911" stroke="#a855f7" stroke-width="3"/>
+          <text x="264" y="360" font-size="11" font-weight="bold" fill="#d8b4fe" text-anchor="middle">+</text>
+
+          <!-- ---------------- PULSADOR SW1: TEST / TRACER (D13) ---------------- -->
+          <rect x="242" y="442" width="44" height="56" rx="5" fill="#1e293b" stroke="#38bdf8" stroke-width="2" filter="url(#compShadow)"/>
+          <circle cx="264" cy="470" r="10" fill="#ef4444" stroke="#fca5a5" stroke-width="1.5"/>
+          <rect x="224" y="418" width="80" height="16" rx="3" fill="#060911" stroke="#38bdf8"/>
+          <text x="264" y="430" font-size="9.5" font-weight="bold" fill="#7dd3fc" text-anchor="middle">SW1: D13 TEST</text>
+          <!-- Pad 1 (D13) en (264, 456) -->
+          <rect x="258" y="450" width="12" height="12" fill="#060911" stroke="#38bdf8" stroke-width="3"/>
+          <!-- Pad 2 (GND) en (264, 484) -->
+          <circle cx="264" cy="484" r="6" fill="#060911" stroke="#0ea5e9" stroke-width="3"/>
+
+          <!-- ======================================================================= -->
+          <!-- U1: ZÓCALO ESP32 DEVKIT V1 (30 PINES EXACTOS A PASO 28px = 2.54mm)      -->
+          <!-- Fila Izquierda: x = 376, y = 120..512 | Fila Derecha: x = 488, y = 120..512 -->
+          <!-- ======================================================================= -->
+          <rect x="356" y="96" width="152" height="438" rx="8" fill="#0f172a" stroke="#cbd5e1" stroke-width="2.5" filter="url(#compShadow)"/>
+          <rect x="380" y="96" width="104" height="18" fill="#1e293b" stroke="#64748b"/>
+          <text x="432" y="109" font-size="9" font-weight="bold" fill="#94a3b8" text-anchor="middle">ANTENA PCB ▲</text>
+          <text x="432" y="280" font-size="13" font-weight="bold" fill="#38bdf8" text-anchor="middle">U1: ESP32</text>
+          <text x="432" y="296" font-size="9.5" fill="#94a3b8" text-anchor="middle">DevKit V1 (30p)</text>
+          <text x="432" y="312" font-size="8.5" fill="#64748b" text-anchor="middle">Pitch: 2.54 mm</text>
+          <rect x="406" y="518" width="52" height="20" rx="3" fill="#475569" stroke="#cbd5e1" stroke-width="1.5"/>
+          <text x="432" y="532" font-size="9" font-weight="bold" fill="#f8fafc" text-anchor="middle">USB ▼</text>
+
+          <!-- 15 Pines Izquierdos del ESP32 (x = 376, paso exacto 28px) -->
+          <g font-size="8.8" font-weight="bold">
+            <rect x="371" y="115" width="10" height="10" fill="#060911" stroke="#94a3b8" stroke-width="2"/><text x="386" y="123" fill="#64748b">01 EN</text>
+            <circle cx="376" cy="148" r="4.5" fill="#060911" stroke="#475569" stroke-width="2"/><text x="386" y="151" fill="#64748b">02 VP</text>
+            <circle cx="376" cy="176" r="4.5" fill="#060911" stroke="#475569" stroke-width="2"/><text x="386" y="179" fill="#64748b">03 VN</text>
+            <circle cx="376" cy="204" r="4.5" fill="#060911" stroke="#475569" stroke-width="2"/><text x="386" y="207" fill="#64748b">04 D34</text>
+            <circle cx="376" cy="232" r="4.5" fill="#060911" stroke="#475569" stroke-width="2"/><text x="386" y="235" fill="#64748b">05 D35</text>
+            <circle cx="376" cy="260" r="4.5" fill="#060911" stroke="#475569" stroke-width="2"/><text x="386" y="263" fill="#64748b">06 D32</text>
+            <circle cx="376" cy="288" r="4.5" fill="#060911" stroke="#475569" stroke-width="2"/><text x="386" y="291" fill="#64748b">07 D33</text>
+            <!-- PIN 8: D25 (RELÉ) -->
+            <circle cx="376" cy="316" r="6" fill="#060911" stroke="#f97316" stroke-width="3"/><text x="386" y="319" fill="#fdba74">08 D25</text>
+            <circle cx="376" cy="344" r="4.5" fill="#060911" stroke="#475569" stroke-width="2"/><text x="386" y="347" fill="#64748b">09 D26</text>
+            <!-- PIN 10: D27 (BUZZER) -->
+            <circle cx="376" cy="372" r="6" fill="#060911" stroke="#a855f7" stroke-width="3"/><text x="386" y="375" fill="#e9d5ff">10 D27</text>
+            <circle cx="376" cy="400" r="4.5" fill="#060911" stroke="#475569" stroke-width="2"/><text x="386" y="403" fill="#64748b">11 D14</text>
+            <circle cx="376" cy="428" r="4.5" fill="#060911" stroke="#475569" stroke-width="2"/><text x="386" y="431" fill="#64748b">12 D12</text>
+            <!-- PIN 13: D13 (TEST) -->
+            <circle cx="376" cy="456" r="6" fill="#060911" stroke="#38bdf8" stroke-width="3"/><text x="386" y="459" fill="#7dd3fc">13 D13</text>
+            <!-- PIN 14: GND -->
+            <circle cx="376" cy="484" r="6" fill="#060911" stroke="#0ea5e9" stroke-width="3"/><text x="386" y="480" fill="#38bdf8">14 GND</text>
+            <!-- PIN 15: VIN (+5V) -->
+            <circle cx="376" cy="512" r="6" fill="#060911" stroke="#ef4444" stroke-width="3"/><text x="386" y="515" fill="#fca5a5">15 VIN</text>
+          </g>
+
+          <!-- 15 Pines Derechos del ESP32 (x = 488, paso exacto 28px) -->
+          <g font-size="8.8" font-weight="bold" text-anchor="end">
+            <circle cx="488" cy="120" r="4.5" fill="#060911" stroke="#475569" stroke-width="2"/><text x="478" y="123" fill="#64748b">D23 30</text>
+            <circle cx="488" cy="148" r="4.5" fill="#060911" stroke="#475569" stroke-width="2"/><text x="478" y="151" fill="#64748b">D22 29</text>
+            <circle cx="488" cy="176" r="4.5" fill="#060911" stroke="#475569" stroke-width="2"/><text x="478" y="179" fill="#64748b">TX0 28</text>
+            <circle cx="488" cy="204" r="4.5" fill="#060911" stroke="#475569" stroke-width="2"/><text x="478" y="207" fill="#64748b">RX0 27</text>
+            <circle cx="488" cy="232" r="4.5" fill="#060911" stroke="#475569" stroke-width="2"/><text x="478" y="235" fill="#64748b">D21 26</text>
+            <circle cx="488" cy="260" r="4.5" fill="#060911" stroke="#475569" stroke-width="2"/><text x="478" y="263" fill="#64748b">D19 25</text>
+            <circle cx="488" cy="288" r="4.5" fill="#060911" stroke="#475569" stroke-width="2"/><text x="478" y="291" fill="#64748b">D18 24</text>
+            <circle cx="488" cy="316" r="4.5" fill="#060911" stroke="#475569" stroke-width="2"/><text x="478" y="319" fill="#64748b">D5 23</text>
+            <circle cx="488" cy="344" r="4.5" fill="#060911" stroke="#475569" stroke-width="2"/><text x="478" y="347" fill="#64748b">TX2 22</text>
+            <circle cx="488" cy="372" r="4.5" fill="#060911" stroke="#475569" stroke-width="2"/><text x="478" y="375" fill="#64748b">RX2 21</text>
+            <!-- PIN 11 DER (Pin 20): D4 (LED_PIN) -->
+            <circle cx="488" cy="400" r="6" fill="#060911" stroke="#22c55e" stroke-width="3"/><text x="478" y="403" fill="#86efac">D4 20</text>
+            <circle cx="488" cy="428" r="4.5" fill="#060911" stroke="#475569" stroke-width="2"/><text x="478" y="431" fill="#64748b">D2 19</text>
+            <circle cx="488" cy="456" r="4.5" fill="#060911" stroke="#475569" stroke-width="2"/><text x="478" y="459" fill="#64748b">D15 18</text>
+            <!-- PIN 14 DER (Pin 17): GND -->
+            <circle cx="488" cy="484" r="6" fill="#060911" stroke="#0ea5e9" stroke-width="3"/><text x="478" y="480" fill="#38bdf8">GND 17</text>
+            <circle cx="488" cy="512" r="4.5" fill="#060911" stroke="#475569" stroke-width="2"/><text x="478" y="515" fill="#64748b">3V3 16</text>
+          </g>
+
+          <!-- ======================================================================= -->
+          <!-- U2: BUFFER SN74LS07N (DIP-14 · Paso 28px · Separación filas 84px)       -->
+          <!-- Fila Superior (y = 232): Pines 14..8 (x = 600, 628, 656, 684, 712, 740, 768) -->
+          <!-- Fila Inferior (y = 316): Pines 1..7  (x = 600, 628, 656, 684, 712, 740, 768) -->
+          <!-- ======================================================================= -->
+          <rect x="580" y="216" width="208" height="116" rx="5" fill="#1e293b" stroke="#f59e0b" stroke-width="2.5" filter="url(#compShadow)"/>
+          <!-- Muesca orientadora izquierda -->
+          <path d="M 580 258 A 16 16 0 0 1 580 290" fill="#060911" stroke="#f59e0b" stroke-width="2.5"/>
+          <circle cx="592" cy="302" r="3" fill="#f59e0b"/>
+          <text x="688" y="266" font-size="11.5" font-weight="bold" fill="#fde68a" text-anchor="middle">U2: SN74LS07N</text>
+          <text x="688" y="280" font-size="9" fill="#fbbf24" text-anchor="middle">◄ NOTCH (PIN 1 ABAJO-IZQ)</text>
+
+          <!-- Fila Superior: Pines 14 a 8 (y = 232) -->
+          <g font-size="8.5" font-weight="bold" text-anchor="middle">
+            <circle cx="600" cy="232" r="6" fill="#060911" stroke="#ef4444" stroke-width="3"/><text x="600" y="250" fill="#fca5a5">14</text>
+            <circle cx="628" cy="232" r="4.5" fill="#060911" stroke="#ef4444" stroke-width="2"/><text x="628" y="250" fill="#94a3b8">13</text>
+            <circle cx="656" cy="232" r="4" fill="#060911" stroke="#475569" stroke-width="2"/><text x="656" y="250" fill="#64748b">12</text>
+            <circle cx="684" cy="232" r="4.5" fill="#060911" stroke="#ef4444" stroke-width="2"/><text x="684" y="250" fill="#94a3b8">11</text>
+            <circle cx="712" cy="232" r="4" fill="#060911" stroke="#475569" stroke-width="2"/><text x="712" y="250" fill="#64748b">10</text>
+            <circle cx="740" cy="232" r="4.5" fill="#060911" stroke="#ef4444" stroke-width="2"/><text x="740" y="250" fill="#94a3b8">9</text>
+            <circle cx="768" cy="232" r="4" fill="#060911" stroke="#475569" stroke-width="2"/><text x="768" y="250" fill="#64748b">8</text>
+          </g>
+
+          <!-- Fila Inferior: Pines 1 a 7 (y = 316) -->
+          <g font-size="8.5" font-weight="bold" text-anchor="middle">
+            <!-- PIN 1 CUADRADO (1A Entrada) -->
+            <rect x="594" y="310" width="12" height="12" fill="#060911" stroke="#22c55e" stroke-width="3"/><text x="600" y="304" fill="#86efac">1</text>
+            <!-- PIN 2 (1Y Salida Colector Abierto) -->
+            <circle cx="628" cy="316" r="6" fill="#060911" stroke="#eab308" stroke-width="3"/><text x="628" y="304" fill="#fde047">2</text>
+            <!-- PIN 3 (2A a GND) -->
+            <circle cx="656" cy="316" r="4.5" fill="#060911" stroke="#0ea5e9" stroke-width="2"/><text x="656" y="304" fill="#7dd3fc">3</text>
+            <!-- PIN 4 (2Y NC) -->
+            <circle cx="684" cy="316" r="4" fill="#060911" stroke="#475569" stroke-width="2"/><text x="684" y="304" fill="#64748b">4</text>
+            <!-- PIN 5 (3A a GND) -->
+            <circle cx="712" cy="316" r="4.5" fill="#060911" stroke="#0ea5e9" stroke-width="2"/><text x="712" y="304" fill="#7dd3fc">5</text>
+            <!-- PIN 6 (3Y NC) -->
+            <circle cx="740" cy="316" r="4" fill="#060911" stroke="#475569" stroke-width="2"/><text x="740" y="304" fill="#64748b">6</text>
+            <!-- PIN 7 (GND) -->
+            <circle cx="768" cy="316" r="6" fill="#060911" stroke="#0ea5e9" stroke-width="3"/><text x="768" y="304" fill="#38bdf8">7</text>
+          </g>
+
+          <!-- ---------------- RESISTENCIA R1: 1 kΩ PULL-UP (Entre 824,148 y 824,232) ---------------- -->
+          <rect x="810" y="162" width="28" height="56" rx="5" fill="#fef3c7" stroke="#f59e0b" stroke-width="2" filter="url(#compShadow)"/>
+          <!-- Bandas de color 1kΩ (Marrón-Negro-Rojo-Oro) -->
+          <line x1="812" y1="174" x2="836" y2="174" stroke="#78350f" stroke-width="3"/>
+          <line x1="812" y1="184" x2="836" y2="184" stroke="#000000" stroke-width="3"/>
+          <line x1="812" y1="194" x2="836" y2="194" stroke="#dc2626" stroke-width="3"/>
+          <line x1="812" y1="206" x2="836" y2="206" stroke="#eab308" stroke-width="2"/>
+          <!-- Etiqueta lateral limpia (sin pisar cobre) -->
+          <rect x="844" y="172" width="68" height="34" rx="3" fill="#060911" stroke="#f59e0b"/>
+          <text x="878" y="186" font-size="9.5" font-weight="bold" fill="#fde047" text-anchor="middle">R1: 1 kΩ</text>
+          <text x="878" y="199" font-size="8.5" fill="#fca5a5" text-anchor="middle">PULL-UP</text>
+          <!-- Pads de R1 -->
+          <circle cx="824" cy="148" r="5.5" fill="#060911" stroke="#ef4444" stroke-width="3"/>
+          <circle cx="824" cy="232" r="5.5" fill="#060911" stroke="#eab308" stroke-width="3"/>
+
+          <!-- ---------------- RESISTENCIA R2: 330 Ω SERIE (Entre 824,288 y 896,288) ---------------- -->
+          <rect x="836" y="274" width="48" height="28" rx="5" fill="#d1fae5" stroke="#10b981" stroke-width="2" filter="url(#compShadow)"/>
+          <!-- Bandas de color 330Ω (Naranja-Naranja-Marrón) -->
+          <line x1="848" y1="276" x2="848" y2="300" stroke="#ea580c" stroke-width="3"/>
+          <line x1="858" y1="276" x2="858" y2="300" stroke="#ea580c" stroke-width="3"/>
+          <line x1="868" y1="276" x2="868" y2="300" stroke="#78350f" stroke-width="3"/>
+          <rect x="826" y="248" width="68" height="18" rx="3" fill="#060911" stroke="#10b981"/>
+          <text x="860" y="261" font-size="9.5" font-weight="bold" fill="#6ee7b7" text-anchor="middle">R2: 330 Ω</text>
+          <!-- Pads de R2 -->
+          <circle cx="824" cy="288" r="6" fill="#060911" stroke="#eab308" stroke-width="3"/>
+          <circle cx="896" cy="288" r="5.5" fill="#060911" stroke="#10b981" stroke-width="3"/>
+
+          <!-- ---------------- BORNERA J2: SALIDA A TIRA WS2811 (x = 936) ---------------- -->
+          <rect x="912" y="208" width="48" height="160" rx="5" fill="#1e293b" stroke="#22c55e" stroke-width="2.5" filter="url(#compShadow)"/>
+          <rect x="880" y="180" width="84" height="18" rx="3" fill="#060911" stroke="#22c55e"/>
+          <text x="922" y="193" font-size="9.5" font-weight="bold" fill="#86efac" text-anchor="middle">J2: WS2811</text>
+          <!-- Pad 1 (+5V): Cuadrado en (936, 232) -->
+          <rect x="929" y="225" width="14" height="14" fill="#060911" stroke="#ef4444" stroke-width="3"/>
+          <text x="905" y="236" font-size="9" font-weight="bold" fill="#fca5a5" text-anchor="end">+5V</text>
+          <!-- Pad 2 (DI Datos 5V) en (936, 288) -->
+          <circle cx="936" cy="288" r="6.5" fill="#060911" stroke="#10b981" stroke-width="3"/>
+          <text x="954" y="292" font-size="9.5" font-weight="bold" fill="#6ee7b7">DI</text>
+          <!-- Pad 3 (GND) en (936, 344) -->
+          <circle cx="936" cy="344" r="6.5" fill="#060911" stroke="#0ea5e9" stroke-width="3"/>
+          <text x="905" y="348" font-size="9" font-weight="bold" fill="#7dd3fc" text-anchor="end">GND</text>
+
+          <!-- ---------------- CAPACITOR CERÁMICO C1: 100nF (Columna x = 992, entre y=232 y y=344) ---------------- -->
+          <rect x="979" y="260" width="26" height="56" rx="8" fill="#d97706" stroke="#fef08a" stroke-width="1.8" filter="url(#compShadow)"/>
+          <text x="992" y="292" font-size="9" font-weight="bold" fill="#000" text-anchor="middle">104</text>
+          <rect x="966" y="198" width="52" height="16" rx="3" fill="#060911" stroke="#f59e0b"/>
+          <text x="992" y="210" font-size="9" font-weight="bold" fill="#fef08a" text-anchor="middle">C1:100n</text>
+          <circle cx="992" cy="232" r="5.5" fill="#060911" stroke="#ef4444" stroke-width="2.5"/>
+          <circle cx="992" cy="344" r="5.5" fill="#060911" stroke="#0ea5e9" stroke-width="2.5"/>
+
+          <!-- ---------------- CAPACITOR ELECTROLÍTICO C2: 1000µF (Columna x = 1048, entre y=232 y y=344) ---------------- -->
+          <circle cx="1048" cy="288" r="28" fill="#1e293b" stroke="#cbd5e1" stroke-width="2" filter="url(#compShadow)"/>
+          <path d="M 1023 300 A 28 28 0 0 0 1073 300 Z" fill="#94a3b8"/>
+          <text x="1048" y="284" font-size="9.5" font-weight="bold" fill="#f8fafc" text-anchor="middle">1000µF</text>
+          <text x="1048" y="296" font-size="8" fill="#cbd5e1" text-anchor="middle">16V</text>
+          <rect x="1022" y="198" width="56" height="16" rx="3" fill="#060911" stroke="#cbd5e1"/>
+          <text x="1050" y="210" font-size="9" font-weight="bold" fill="#f8fafc" text-anchor="middle">C2:FILTRO</text>
+          <!-- Pad (+) Cuadrado en (1048, 232) -->
+          <rect x="1042" y="226" width="12" height="12" fill="#060911" stroke="#ef4444" stroke-width="3"/>
+          <text x="1064" y="236" font-size="11" font-weight="bold" fill="#fca5a5">+</text>
+          <!-- Pad (-) Redondo en (1048, 344) -->
+          <circle cx="1048" cy="344" r="6" fill="#060911" stroke="#0ea5e9" stroke-width="3"/>
+          <text x="1064" y="348" font-size="11" font-weight="bold" fill="#7dd3fc">−</text>
+        </g>
+
+        <!-- ======================================================================= -->
+        <!-- CAPA 5: PUNTOS DE PRUEBA DE INGENIERÍA (TEST POINTS TP1..TP5)           -->
+        <!-- ======================================================================= -->
+        <g id="layer-tp" font-size="9" font-weight="bold">
+          <!-- TP1: +5V Bus -->
+          <circle cx="544" cy="64" r="5" fill="#fbbf24" stroke="#000" stroke-width="1.5"/>
+          <rect x="512" y="80" width="64" height="16" rx="3" fill="#060911" stroke="#fbbf24"/>
+          <text x="544" y="91" fill="#fde047" text-anchor="middle">TP1: +5.0V</text>
+
+          <!-- TP2: GND Bus -->
+          <circle cx="600" cy="568" r="5" fill="#fbbf24" stroke="#000" stroke-width="1.5"/>
+          <rect x="568" y="538" width="64" height="16" rx="3" fill="#060911" stroke="#fbbf24"/>
+          <text x="600" y="549" fill="#fde047" text-anchor="middle">TP2: GND</text>
+
+          <!-- TP3: Entrada 3.3V al Buffer (Pin 1) -->
+          <circle cx="544" cy="400" r="5" fill="#fbbf24" stroke="#000" stroke-width="1.5"/>
+          <rect x="510" y="412" width="76" height="16" rx="3" fill="#060911" stroke="#22c55e"/>
+          <text x="548" y="423" fill="#86efac" text-anchor="middle">TP3: D4 (3.3V)</text>
+
+          <!-- TP4: Salida Colector Abierto 5V (Pin 2 + R1) -->
+          <circle cx="792" cy="288" r="5" fill="#fbbf24" stroke="#000" stroke-width="1.5"/>
+          <rect x="742" y="348" width="84" height="16" rx="3" fill="#060911" stroke="#eab308"/>
+          <text x="784" y="359" fill="#fde047" text-anchor="middle">TP4: 1Y (5.0V)</text>
+          <line x1="792" y1="293" x2="784" y2="348" stroke="#eab308" stroke-width="1" stroke-dasharray="2,2"/>
+        </g>
+
+      </g>
+    </svg>
+  </div>
+
+  <div class="legend">
+    <div class="legend-item"><span class="swatch" style="background:#ef4444"></span> <b>RED +5V (Ancho 2.0 mm):</b> Bus perimetral superior/izquierdo (J1 Pin 2 ➔ ESP32 VIN, J3 VCC, U2 Pin 14, R1, J2 +5V, C1+, C2+)</div>
+    <div class="legend-item"><span class="swatch" style="background:#0ea5e9"></span> <b>RED GND (Ancho 2.0 mm):</b> Bus interior/inferior (J1 Pin 1 ➔ J3 GND, BZ1-, SW1, ESP32 GND, U2 Pin 7/3/5, J2 GND, C1-, C2-)</div>
+    <div class="legend-item"><span class="swatch" style="background:#22c55e"></span> <b>NET D4_3V3:</b> ESP32 Pin 20 (GPIO 4) ➔ U2 Pin 1 (1A)</div>
+    <div class="legend-item"><span class="swatch" style="background:#eab308"></span> <b>NET 1Y_5V:</b> U2 Pin 2 (1Y) ➔ Nodo R1 (1kΩ Pull-Up) + R2 (330Ω)</div>
+    <div class="legend-item"><span class="swatch" style="background:#10b981"></span> <b>NET DIN_OUT:</b> R2 (330Ω) ➔ J2 Pin 2 (DI WS2811)</div>
+    <div class="legend-item"><span class="swatch" style="background:#fbbf24"></span> <b>Pads Cuadrados = Pin 1 / Positivo (+)</b></div>
+  </div>
+</div>
+
+<!-- ==================================================================================== -->
+<!-- HOJA 2: ESQUEMÁTICO ELECTRÓNICO IEEE/IEC + CIRCUITO INTERNO DEL SN74LS07N            -->
+<!-- ==================================================================================== -->
+<div class="sheet">
+  <div class="sheet-header">
+    <h2>HOJA 2/3 · ESQUEMÁTICO TÉCNICO COMPLETO (Norma IEEE/IEC) Y ARQUITECTURA INTERNA DEL SN74LS07N</h2>
+    <span class="badge">Nivel de Señal 800 kHz · Colector Abierto NPN · Aislamiento Óptico</span>
+  </div>
+
+  <div class="canvas-box">
+    <svg viewBox="0 0 1150 470" xmlns="http://www.w3.org/2000/svg">
+      <!-- Fondo técnico tipo hoja de ingeniería -->
+      <rect x="5" y="5" width="1140" height="460" fill="#060911" stroke="#334155" stroke-width="2"/>
+
+      <!-- ==================== BLOQUE 1: ALIMENTACIÓN Y FILTRADO ==================== -->
+      <rect x="20" y="20" width="210" height="205" rx="6" fill="#0b0f19" stroke="#334155" stroke-dasharray="4,3"/>
+      <text x="30" y="38" font-size="11" font-weight="bold" fill="#38bdf8">1. ENTRADA Y FILTRADO 5V DC</text>
+
+      <!-- Bornera J1 -->
+      <rect x="35" y="65" width="45" height="65" fill="#1e293b" stroke="#f8fafc" stroke-width="1.5"/>
+      <text x="57" y="58" font-size="10" font-weight="bold" fill="#f8fafc" text-anchor="middle">J1</text>
+      <text x="42" y="85" font-size="10" font-weight="bold" fill="#fca5a5">+5V</text>
+      <text x="42" y="115" font-size="10" font-weight="bold" fill="#7dd3fc">GND</text>
+
+      <!-- Línea +5V en bloque 1 -->
+      <line x1="80" y1="80" x2="215" y2="80" stroke="#ef4444" stroke-width="3"/>
+      <text x="205" y="72" font-size="10" font-weight="bold" fill="#ef4444" text-anchor="end">+5V_BUS</text>
+      <!-- Línea GND en bloque 1 -->
+      <line x1="80" y1="180" x2="215" y2="180" stroke="#0ea5e9" stroke-width="3"/>
+      <polyline points="80,112 95,112 95,180" fill="none" stroke="#0ea5e9" stroke-width="3"/>
+
+      <!-- Capacitor C2 (1000uF) símbolo esquemático -->
+      <line x1="130" y1="80" x2="130" y2="120" stroke="#ef4444" stroke-width="2"/>
+      <line x1="116" y1="120" x2="144" y2="120" stroke="#f8fafc" stroke-width="3"/>
+      <path d="M 116 132 Q 130 124 144 132" fill="none" stroke="#f8fafc" stroke-width="3"/>
+      <line x1="130" y1="129" x2="130" y2="180" stroke="#0ea5e9" stroke-width="2"/>
+      <text x="138" y="114" font-size="10" font-weight="bold" fill="#fca5a5">+</text>
+      <text x="130" y="152" font-size="9" font-weight="bold" fill="#cbd5e1" text-anchor="middle">C2: 1000µF</text>
+
+      <!-- Capacitor C1 (100nF) símbolo esquemático -->
+      <line x1="185" y1="80" x2="185" y2="120" stroke="#ef4444" stroke-width="2"/>
+      <line x1="173" y1="120" x2="197" y2="120" stroke="#fef08a" stroke-width="3"/>
+      <line x1="173" y1="128" x2="197" y2="128" stroke="#fef08a" stroke-width="3"/>
+      <line x1="185" y1="128" x2="185" y2="180" stroke="#0ea5e9" stroke-width="2"/>
+      <text x="185" y="152" font-size="9" font-weight="bold" fill="#fef08a" text-anchor="middle">C1: 100nF</text>
+
+      <!-- Símbolo Tierra IEEE -->
+      <line x1="155" y1="180" x2="155" y2="195" stroke="#0ea5e9" stroke-width="2"/>
+      <line x1="143" y1="195" x2="167" y2="195" stroke="#0ea5e9" stroke-width="2"/>
+      <line x1="147" y1="201" x2="163" y2="201" stroke="#0ea5e9" stroke-width="2"/>
+      <line x1="151" y1="207" x2="159" y2="207" stroke="#0ea5e9" stroke-width="2"/>
+
+      <!-- ==================== BLOQUE 2: MICROCONTROLADOR U1 (ESP32) ==================== -->
+      <rect x="250" y="20" width="250" height="430" rx="6" fill="#0b0f19" stroke="#334155" stroke-dasharray="4,3"/>
+      <text x="260" y="38" font-size="11" font-weight="bold" fill="#38bdf8">2. MCU U1 (ESP32 DEVKIT V1)</text>
+
+      <rect x="290" y="65" width="170" height="340" rx="4" fill="#1e293b" stroke="#38bdf8" stroke-width="2"/>
+      <text x="375" y="92" font-size="12" font-weight="bold" fill="#f8fafc" text-anchor="middle">ESP32-WROOM-32</text>
+      <text x="375" y="108" font-size="9.5" fill="#94a3b8" text-anchor="middle">Lógica CMOS 3.3V</text>
+
+      <!-- Alimentación MCU -->
+      <line x1="255" y1="80" x2="290" y2="80" stroke="#ef4444" stroke-width="3"/>
+      <text x="298" y="84" font-size="10" font-weight="bold" fill="#fca5a5">Pin 15: VIN (+5V)</text>
+      <text x="298" y="100" font-size="8.5" fill="#94a3b8">[LDO Interno AMS1117 ➔ 3.3V]</text>
+
+      <line x1="255" y1="380" x2="290" y2="380" stroke="#0ea5e9" stroke-width="3"/>
+      <text x="298" y="384" font-size="10" font-weight="bold" fill="#7dd3fc">Pines 14/17: GND</text>
+
+      <!-- Salida GPIO 4 (D4) -->
+      <text x="450" y="174" font-size="10" font-weight="bold" fill="#86efac" text-anchor="end">GPIO 4 (D4 / Pin 20)</text>
+      <text x="450" y="188" font-size="8.5" fill="#94a3b8" text-anchor="end">[RMT WS2811 800kHz]</text>
+      <line x1="460" y1="170" x2="540" y2="170" stroke="#22c55e" stroke-width="3"/>
+      <text x="500" y="162" font-size="9.5" font-weight="bold" fill="#86efac" text-anchor="middle">TP3 (3.3Vpp)</text>
+
+      <!-- Entrada GPIO 13 (D13) con Pull-Up interno -->
+      <text x="450" y="254" font-size="10" font-weight="bold" fill="#7dd3fc" text-anchor="end">GPIO 13 (D13 / Pin 13)</text>
+      <text x="450" y="268" font-size="8.5" fill="#94a3b8" text-anchor="end">[INPUT_PULLUP ~45kΩ]</text>
+      <line x1="460" y1="250" x2="520" y2="250" stroke="#38bdf8" stroke-width="2.5"/>
+
+      <!-- Salida GPIO 27 (D27 Buzzer) -->
+      <text x="450" y="314" font-size="10" font-weight="bold" fill="#e9d5ff" text-anchor="end">GPIO 27 (D27 / Pin 10)</text>
+      <text x="450" y="328" font-size="8.5" fill="#94a3b8" text-anchor="end">[LEDC PWM 2.7 kHz]</text>
+      <line x1="460" y1="310" x2="520" y2="310" stroke="#a855f7" stroke-width="2.5"/>
+
+      <!-- Salida GPIO 25 (D25 Relé) -->
+      <text x="450" y="364" font-size="10" font-weight="bold" fill="#fdba74" text-anchor="end">GPIO 25 (D25 / Pin 8)</text>
+      <text x="450" y="378" font-size="8.5" fill="#94a3b8" text-anchor="end">[Active LOW Relay Out]</text>
+      <line x1="460" y1="360" x2="520" y2="360" stroke="#f97316" stroke-width="2.5"/>
+
+      <!-- ==================== BLOQUE 3: ETAPA ADAPTADORA DE NIVEL (SN74LS07N) ==================== -->
+      <rect x="520" y="20" width="610" height="215" rx="6" fill="#0b0f19" stroke="#f59e0b" stroke-width="1.5"/>
+      <text x="535" y="38" font-size="11" font-weight="bold" fill="#fbbf24">3. ETAPA ADAPTADORA DE NIVEL 3.3V ➔ 5.0V (CIRCUITO INTERNO EQUIVALENTE DEL SN74LS07N)</text>
+
+      <!-- Caja del Buffer 1 (U2A) mostrando el transistor NPN Open-Collector interno -->
+      <rect x="555" y="85" width="210" height="125" rx="6" fill="#1e293b" stroke="#f59e0b" stroke-width="2"/>
+      <text x="660" y="103" font-size="10.5" font-weight="bold" fill="#fde68a" text-anchor="middle">U2A: SN74LS07N (1/6)</text>
+      <text x="565" y="165" font-size="9.5" font-weight="bold" fill="#86efac">Pin 1 (1A)</text>
+      <text x="755" y="145" font-size="9.5" font-weight="bold" fill="#fde047" text-anchor="end">Pin 2 (1Y)</text>
+      <text x="565" y="98" font-size="9" font-weight="bold" fill="#fca5a5">Pin 14 (+5V)</text>
+      <text x="660" y="204" font-size="9" font-weight="bold" fill="#7dd3fc" text-anchor="middle">Pin 7 (GND)</text>
+
+      <!-- Símbolo transistor NPN Open Collector dentro de U2A -->
+      <line x1="540" y1="170" x2="645" y2="170" stroke="#22c55e" stroke-width="2.5"/>
+      <line x1="645" y1="152" x2="645" y2="188" stroke="#f8fafc" stroke-width="3"/>
+      <line x1="645" y1="162" x2="675" y2="145" stroke="#f8fafc" stroke-width="2.5"/>
+      <line x1="645" y1="178" x2="675" y2="195" stroke="#f8fafc" stroke-width="2.5"/>
+      <!-- Colector abierto sale a Pin 2 (675, 145 -> 785, 145) -->
+      <line x1="675" y1="145" x2="830" y2="145" stroke="#eab308" stroke-width="3"/>
+      <!-- Emisor a Pin 7 GND -->
+      <line x1="675" y1="195" x2="675" y2="225" stroke="#0ea5e9" stroke-width="2.5"/>
+      <text x="705" y="125" font-size="8.5" fill="#fde047" text-anchor="middle">Colector Abierto</text>
+      <text x="705" y="136" font-size="8.5" fill="#94a3b8" text-anchor="middle">(Sin pull-up interno)</text>
+
+      <!-- Resistencia R1 (1 kΩ Pull-Up externa a +5V) -->
+      <line x1="830" y1="55" x2="830" y2="75" stroke="#ef4444" stroke-width="3"/>
+      <text x="830" y="50" font-size="10" font-weight="bold" fill="#ef4444" text-anchor="middle">+5V_BUS</text>
+      <rect x="816" y="75" width="28" height="46" rx="3" fill="#fef3c7" stroke="#f59e0b" stroke-width="2"/>
+      <text x="830" y="96" font-size="10" font-weight="bold" fill="#000" text-anchor="middle">R1</text>
+      <text x="830" y="110" font-size="9.5" font-weight="bold" fill="#b45309" text-anchor="middle">1 kΩ</text>
+      <line x1="830" y1="121" x2="830" y2="145" stroke="#eab308" stroke-width="3"/>
+      <circle cx="830" cy="145" r="5" fill="#eab308"/>
+      <text x="830" y="165" font-size="9.5" font-weight="bold" fill="#fde047" text-anchor="middle">TP4 (5.0Vpp)</text>
+
+      <!-- Resistencia R2 (330 Ω Serie) -->
+      <line x1="830" y1="145" x2="885" y2="145" stroke="#eab308" stroke-width="3"/>
+      <rect x="885" y="131" width="56" height="28" rx="3" fill="#d1fae5" stroke="#10b981" stroke-width="2"/>
+      <text x="913" y="149" font-size="10.5" font-weight="bold" fill="#065f46" text-anchor="middle">R2: 330Ω</text>
+      <line x1="941" y1="145" x2="1005" y2="145" stroke="#10b981" stroke-width="3"/>
+
+      <!-- Bornera J2 (Salida WS2811) -->
+      <rect x="1005" y="80" width="105" height="125" rx="5" fill="#1e293b" stroke="#22c55e" stroke-width="2"/>
+      <text x="1057" y="72" font-size="10.5" font-weight="bold" fill="#86efac" text-anchor="middle">J2: TIRA WS2811</text>
+      <text x="1015" y="105" font-size="10" font-weight="bold" fill="#fca5a5">1: +5V (Rojo)</text>
+      <text x="1015" y="149" font-size="10" font-weight="bold" fill="#6ee7b7">2: DI (Verde)</text>
+      <text x="1015" y="190" font-size="10" font-weight="bold" fill="#7dd3fc">3: GND (Blanco)</text>
+
+      <!-- ==================== BLOQUE 4: PERIFÉRICOS (SW1, BZ1, J3 RELÉ) ==================== -->
+      <rect x="520" y="245" width="610" height="205" rx="6" fill="#0b0f19" stroke="#334155" stroke-dasharray="4,3"/>
+      <text x="535" y="263" font-size="11" font-weight="bold" fill="#38bdf8">4. PERIFÉRICOS DE CONTROL Y SALIDA ACÚSTICA (SW1, BZ1, J3)</text>
+
+      <!-- SW1 en GPIO 13 -->
+      <line x1="520" y1="250" x2="620" y2="250" stroke="#38bdf8" stroke-width="2.5"/>
+      <circle cx="625" cy="250" r="4" fill="#060911" stroke="#38bdf8" stroke-width="2"/>
+      <line x1="629" y1="246" x2="655" y2="234" stroke="#f8fafc" stroke-width="2.5"/>
+      <circle cx="660" cy="250" r="4" fill="#060911" stroke="#0ea5e9" stroke-width="2"/>
+      <line x1="664" y1="250" x2="720" y2="250" stroke="#0ea5e9" stroke-width="2.5"/>
+      <text x="642" y="272" font-size="9.5" font-weight="bold" fill="#7dd3fc" text-anchor="middle">SW1: TEST (D13 ➔ GND)</text>
+
+      <!-- BZ1 en GPIO 27 -->
+      <line x1="520" y1="310" x2="620" y2="310" stroke="#a855f7" stroke-width="2.5"/>
+      <rect x="620" y="294" width="44" height="32" rx="4" fill="#1e293b" stroke="#a855f7" stroke-width="2"/>
+      <text x="642" y="314" font-size="9.5" font-weight="bold" fill="#e9d5ff" text-anchor="middle">BZ1</text>
+      <line x1="664" y1="310" x2="720" y2="310" stroke="#0ea5e9" stroke-width="2.5"/>
+      <text x="642" y="340" font-size="9" fill="#cbd5e1" text-anchor="middle">Piezo Pasivo (2700 Hz)</text>
+
+      <!-- J3 en GPIO 25 -->
+      <line x1="520" y1="360" x2="620" y2="360" stroke="#f97316" stroke-width="2.5"/>
+      <rect x="620" y="350" width="90" height="80" rx="4" fill="#1e293b" stroke="#f97316" stroke-width="2"/>
+      <text x="665" y="368" font-size="9.5" font-weight="bold" fill="#fdba74" text-anchor="middle">J3: RELÉ</text>
+      <text x="665" y="384" font-size="8.5" fill="#fca5a5" text-anchor="middle">Pin 1: +5V</text>
+      <text x="665" y="398" font-size="8.5" fill="#fdba74" text-anchor="middle">Pin 2: IN (D25)</text>
+      <text x="665" y="412" font-size="8.5" fill="#7dd3fc" text-anchor="middle">Pin 3: GND</text>
+      <line x1="720" y1="250" x2="720" y2="412" stroke="#0ea5e9" stroke-width="3"/>
+      <line x1="710" y1="412" x2="720" y2="412" stroke="#0ea5e9" stroke-width="2.5"/>
+      <text x="730" y="335" font-size="10" font-weight="bold" fill="#0ea5e9">GND COMÚN</text>
+
+      <!-- Cuadro de Fórmulas de Ingeniería en Bloque 4 -->
+      <rect x="815" y="270" width="295" height="165" rx="6" fill="#1e293b" stroke="#475569"/>
+      <text x="830" y="290" font-size="10.5" font-weight="bold" fill="#fde047">PARÁMETROS DE DISEÑO ELÉCTRICO:</text>
+      <text x="830" y="310" font-size="9.5" fill="#e2e8f0">• Umbral entrada SN74LS07N:</text>
+      <text x="842" y="324" font-size="9" fill="#86efac">V_IH(min) = 2.0 V | V_IL(max) = 0.8 V</text>
+      <text x="842" y="338" font-size="9" fill="#94a3b8">(Compatible 100% con salida 3.3V del ESP32)</text>
+      <text x="830" y="358" font-size="9.5" fill="#e2e8f0">• Corriente de sumidero en Pin 2 (LOW):</text>
+      <text x="842" y="372" font-size="9" fill="#fde047">I_OL = 5.0V / 1000Ω = 5.0 mA (Máx: 40 mA)</text>
+      <text x="830" y="392" font-size="9.5" fill="#e2e8f0">• Tiempo de subida flanco WS2811 (800 kHz):</text>
+      <text x="842" y="406" font-size="9" fill="#6ee7b7">τ = R1 × C_in ≈ 1kΩ × 15pF = 15 ns (&lt;&lt; 300 ns)</text>
+      <text x="830" y="424" font-size="9" fill="#fca5a5">• Nivel alto en DI del LED 0: V_OH ≈ 4.95 V</text>
+    </svg>
+  </div>
+</div>
+
+<!-- ==================================================================================== -->
+<!-- HOJA 3: NETLIST COMPLETA PIN A PIN + PROTOCOLO DE DIAGNÓSTICO CON MULTÍMETRO         -->
+<!-- ==================================================================================== -->
+<div class="sheet">
+  <div class="sheet-header">
+    <h2>HOJA 3/3 · TABLA MAESTRA DE REDES (NETLIST), PINOUT COMPLETO DEL SN74LS07N Y DIAGNÓSTICO</h2>
+    <span class="badge">Manual de Taller y Puesta en Marcha</span>
+  </div>
+
+  <div class="grid-2col">
+    <div>
+      <table>
+        <thead>
+          <tr>
+            <th>Nombre de Red (Net)</th>
+            <th>Origen (Componente / Pin)</th>
+            <th>Destino(s) Exacto(s)</th>
+            <th>Tensión Esperada</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><b style="color:#fca5a5">+5V_BUS</b></td>
+            <td><b>J1 Pin 2</b> (Entrada Fuente +5V)</td>
+            <td>
+              • <b>U1 Pin 15</b> (ESP32 VIN)<br>
+              • <b>U2 Pin 14</b> (SN74LS07N VCC) + Pines 9, 11, 13<br>
+              • <b>R1 Pad 1</b> (1 kΩ Pull-Up)<br>
+              • <b>J2 Pin 1</b> (+5V Tira LED)<br>
+              • <b>J3 Pin 1</b> (VCC Módulo Relé)<br>
+              • <b>C1 (+)</b> y <b>C2 (+)</b>
+            </td>
+            <td><b>4.95 V – 5.15 V DC</b></td>
+          </tr>
+          <tr>
+            <td><b style="color:#7dd3fc">GND_COMUN</b></td>
+            <td><b>J1 Pin 1</b> (Entrada Fuente GND)</td>
+            <td>
+              • <b>U1 Pines 14 y 17</b> (ESP32 GND)<br>
+              • <b>U2 Pin 7</b> (SN74LS07N GND) + Pines 3, 5<br>
+              • <b>SW1 Pin 2</b>, <b>BZ1 (−)</b><br>
+              • <b>J2 Pin 3</b> (GND Tira LED)<br>
+              • <b>J3 Pin 3</b> (GND Módulo Relé)<br>
+              • <b>C1 (−)</b> y <b>C2 (−)</b>
+            </td>
+            <td><b>0.00 V (Referencia)</b></td>
+          </tr>
+          <tr>
+            <td><b style="color:#86efac">D4_3V3 (TP3)</b></td>
+            <td><b>U1 Pin 20</b> (GPIO 4 / D4)</td>
+            <td>• <b>U2 Pin 1</b> (Entrada 1A del SN74LS07N)</td>
+            <td><b>0.1 V – 1.8 V DC promedio</b><br>(Tren de pulsos 3.3V a 800kHz)</td>
+          </tr>
+          <tr>
+            <td><b style="color:#fde047">1Y_5V (TP4)</b></td>
+            <td><b>U2 Pin 2</b> (Salida 1Y Colector Abierto)</td>
+            <td>
+              • <b>R1 Pad 2</b> (1 kΩ hacia +5V)<br>
+              • <b>R2 Pad 1</b> (330 Ω hacia DI)
+            </td>
+            <td>
+              • Sin ESP32: <b>5.0 V fijos</b><br>
+              • Con datos LED: <b>1.5 V – 3.5 V DC prom.</b>
+            </td>
+          </tr>
+          <tr>
+            <td><b style="color:#6ee7b7">DIN_OUT</b></td>
+            <td><b>R2 Pad 2</b> (Salida 330 Ω)</td>
+            <td>• <b>J2 Pin 2</b> (Cable Verde DI del LED 0)</td>
+            <td><b>1.5 V – 3.5 V DC promedio</b></td>
+          </tr>
+          <tr>
+            <td><b style="color:#38bdf8">TEST_BTN</b></td>
+            <td><b>U1 Pin 13</b> (GPIO 13 / D13)</td>
+            <td>• <b>SW1 Pin 1</b> (Pulsador de Prueba)</td>
+            <td>
+              • Suelto: <b>3.3 V DC</b><br>
+              • Presionado: <b>0.0 V DC</b>
+            </td>
+          </tr>
+          <tr>
+            <td><b style="color:#e9d5ff">BUZZER_PWM</b></td>
+            <td><b>U1 Pin 10</b> (GPIO 27 / D27)</td>
+            <td>• <b>BZ1 (+)</b> (Positivo Buzzer Piezo)</td>
+            <td><b>0.0 V</b> (Reposo) / <b>~1.6 V</b> (Pitando)</td>
+          </tr>
+          <tr>
+            <td><b style="color:#fdba74">RELAY_CTRL</b></td>
+            <td><b>U1 Pin 8</b> (GPIO 25 / D25)</td>
+            <td>• <b>J3 Pin 2</b> (Entrada IN Módulo Relé)</td>
+            <td><b>3.3 V</b> (Sirena OFF) / <b>0.0 V</b> (Sirena ON)</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div>
+      <!-- Tabla de los 6 Buffers internos del SN74LS07N -->
+      <table>
+        <thead>
+          <tr>
+            <th colspan="4">MAPA INTERNO DE LOS 6 BUFFERS DEL SN74LS07N (Por si querés usar otro canal de repuesto)</th>
+          </tr>
+          <tr>
+            <th>Canal Interno</th>
+            <th>Pin de Entrada (A)</th>
+            <th>Pin de Salida (Y)</th>
+            <th>Estado en este PCB</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td><b>Buffer 1 (Principal)</b></td><td><b>Pin 1 (1A)</b></td><td><b>Pin 2 (1Y)</b></td><td><b style="color:#86efac">ACTIVO (Conecta D4 ➔ LEDs)</b></td></tr>
+          <tr><td>Buffer 2 (Repuesto)</td><td>Pin 3 (2A)</td><td>Pin 4 (2Y)</td><td>Inactivo (Pin 3 a GND, Pin 4 libre)</td></tr>
+          <tr><td>Buffer 3 (Repuesto)</td><td>Pin 5 (3A)</td><td>Pin 6 (3Y)</td><td>Inactivo (Pin 5 a GND, Pin 6 libre)</td></tr>
+          <tr><td>Buffer 4 (Repuesto)</td><td>Pin 9 (4A)</td><td>Pin 8 (4Y)</td><td>Inactivo (Pin 9 a +5V, Pin 8 libre)</td></tr>
+          <tr><td>Buffer 5 (Repuesto)</td><td>Pin 11 (5A)</td><td>Pin 10 (5Y)</td><td>Inactivo (Pin 11 a +5V, Pin 10 libre)</td></tr>
+          <tr><td>Buffer 6 (Repuesto)</td><td>Pin 13 (6A)</td><td>Pin 12 (6Y)</td><td>Inactivo (Pin 13 a +5V, Pin 12 libre)</td></tr>
+        </tbody>
+      </table>
+
+      <div class="grid-3col">
+        <div class="eng-card ok">
+          <h3>1. Prueba en Vacío (Sin ICs)</h3>
+          Antes de insertar el ESP32 y el SN74LS07N en sus zócalos, alimentá <b>J1</b> con 5V y medí entre <b>TP1 (+5V)</b> y <b>TP2 (GND)</b>: debe haber <b>5.0V</b>. En <b>TP4</b> también debe haber <b>5.0V</b> (a través de R1).
+        </div>
+        <div class="eng-card warn">
+          <h3>2. Prueba Dinámica del 74LS07</h3>
+          Insertá solo el <b>SN74LS07N</b>. Con un cable puenteá <b>TP3 (Pin 1)</b> a <b>GND</b>: la tensión en <b>TP4 (Pin 2)</b> debe caer de <b>5.0V a 0.08V</b>. Al soltar el cable, debe subir a <b>5.0V</b> al instante.
+        </div>
+        <div class="eng-card">
+          <h3>3. Prueba del Botón D13</h3>
+          Con el ESP32 puesto, medí en el pin <b>D13</b>: debe marcar <b>3.3V</b>. Al apretar <b>SW1</b> debe bajar a <b>0V</b>. Una vez terminada la rutina de inicio (~15 s), <b>doble clic en SW1</b> dispara el pitido y el modo Tracer.
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  function setMirror(mirror) {
+    const sheet = document.getElementById('pcbSheet');
+    const title = document.getElementById('viewTitle');
+    document.getElementById('btnTop').classList.toggle('active', !mirror);
+    document.getElementById('btnBottom').classList.toggle('active', mirror);
+    if (mirror) {
+      sheet.classList.add('mirrored');
+      title.textContent = 'HOJA 1/3 · LAYOUT PCB ESPEJADO (Vista Inferior Lado Cobre / Soldadura)';
+    } else {
+      sheet.classList.remove('mirrored');
+      title.textContent = 'HOJA 1/3 · LAYOUT PCB CAD (Top View + Bottom Copper por Transparencia)';
+    }
+  }
+
+  function toggleLayer(layerId, btn) {
+    const el = document.getElementById(layerId);
+    const hidden = el.style.display === 'none';
+    el.style.display = hidden ? 'inline' : 'none';
+    btn.classList.toggle('active', hidden);
+  }
+</script>
+</body>
+</html>

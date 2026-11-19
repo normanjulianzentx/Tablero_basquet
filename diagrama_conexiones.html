@@ -1,0 +1,1056 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="utf-8">
+  <title>Tablero Deportivo Básquet & Futsal - Diagrama de conexiones</title>
+  <meta name="description"
+    content="Diagramas de conexionado imprimibles del tablero deportivo de Básquet y Futsal ESP32-C3 SuperMini + WS2811">
+  <style>
+    @page {
+      size: A4 landscape;
+      margin: 8mm 10mm;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: "Segoe UI", Arial, sans-serif;
+      color: #111;
+      margin: 0;
+      background: #fff;
+    }
+
+    .page {
+      page-break-after: always;
+      height: 188mm;
+      max-height: 188mm;
+      overflow: hidden;
+      padding: 0;
+    }
+
+    .page:last-child {
+      page-break-after: auto;
+    }
+
+    h1 {
+      font-size: 15pt;
+      margin: 0 0 1.5mm;
+    }
+
+    h2 {
+      font-size: 11pt;
+      margin: 2mm 0 1.5mm;
+    }
+
+    .sub {
+      color: #444;
+      font-size: 8.5pt;
+      margin-bottom: 2mm;
+    }
+
+    svg {
+      width: 100%;
+      height: auto;
+      border: 1px solid #bbb;
+    }
+
+    svg text {
+      font-family: "Segoe UI", Arial, sans-serif;
+    }
+
+    table {
+      border-collapse: collapse;
+      font-size: 8pt;
+      width: 100%;
+    }
+
+    th,
+    td {
+      border: 1px solid #888;
+      padding: 1.5px 5px;
+      text-align: left;
+    }
+
+    th {
+      background: #e8e8e8;
+    }
+
+    .cols {
+      display: flex;
+      gap: 6mm;
+    }
+
+    .cols>div {
+      flex: 1;
+    }
+
+    ul.check {
+      font-size: 8pt;
+      margin: 0;
+      padding-left: 4mm;
+    }
+
+    ul.check li {
+      margin-bottom: 0.8mm;
+      list-style: "☐  ";
+    }
+
+    .warn {
+      border: 1.5px solid #c00;
+      padding: 1.5mm 3mm;
+      font-size: 8pt;
+      margin-top: 1.5mm;
+    }
+
+    .success {
+      border: 1.5px solid #059669;
+      background: #ecfdf5;
+      padding: 1.5mm 3mm;
+      font-size: 8pt;
+      margin-top: 1.5mm;
+      color: #065f46;
+    }
+
+    @media screen {
+      body {
+        max-width: 1120px;
+        margin: 0 auto;
+      }
+
+      .page {
+        border-bottom: 3px dashed #999;
+        margin-bottom: 8mm;
+        height: auto;
+        max-height: none;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- ===================== PÁGINA 1: SEÑALES (ESP32-C3 SUPERMINI) ===================== -->
+  <section class="page">
+    <h1>1/4 · Conexionado de señales y alimentación – Tablero (ESP32-C3 SuperMini)</h1>
+    <div class="sub">Diagrama esquemático oficial con <b>ESP32-C3 SuperMini</b>, adaptador <b>LED Buffer WS2811 + Diodo
+        1N4007</b> (3.3V ➔ 5.0V), Cadena WS2811, Módulo Relé para Sirena 12V y Buzzer pasivo. <b>GND de TODO debe estar
+        unificado</b>.</div>
+
+    <svg viewBox="0 0 1100 580" xmlns="http://www.w3.org/2000/svg" style="max-height: 140mm; background: #fafafa;">
+      <defs>
+        <marker id="arrow" markerWidth="6" markerHeight="6" refX="4" refY="3" orient="auto">
+          <path d="M0,0 L0,6 L6,3 z" fill="#0284c7" />
+        </marker>
+      </defs>
+
+      <!-- ================= BUSES DE ALIMENTACIÓN GENERAL (ARRIBA) ================= -->
+      <!-- BUS +5V -->
+      <line x1="160" y1="45" x2="1060" y2="45" stroke="#dc2626" stroke-width="5" />
+      <text x="180" y="38" font-size="12" font-weight="bold" fill="#dc2626">BUS PRINCIPAL +5V (Cable rojo grueso ≥ 2.5
+        mm² - Fuente 5V 10A..40A)</text>
+
+      <!-- BUS GND -->
+      <line x1="160" y1="90" x2="1060" y2="90" stroke="#0f172a" stroke-width="5" />
+      <text x="180" y="83" font-size="12" font-weight="bold" fill="#0f172a">BUS PRINCIPAL GND COMÚN (Cable negro grueso
+        ≥ 2.5 mm² - Todo unificado)</text>
+
+      <!-- ================= FUENTE 5V ================= -->
+      <rect x="25" y="25" width="130" height="95" rx="6" fill="#f1f5f9" stroke="#334155" stroke-width="2" />
+      <text x="90" y="48" font-size="12" font-weight="bold" text-anchor="middle" fill="#0f172a">FUENTE 5V</text>
+      <text x="90" y="64" font-size="10" text-anchor="middle" fill="#64748b">(Industrial 5V)</text>
+      <text x="90" y="78" font-size="8.5" text-anchor="middle" fill="#059669">V-ADJ: 4.8V..5.0V</text>
+
+      <!-- Bornes de la fuente -->
+      <circle cx="140" cy="45" r="5" fill="#dc2626" />
+      <text x="130" y="49" font-size="10" font-weight="bold" text-anchor="end" fill="#dc2626">+V</text>
+
+      <circle cx="140" cy="90" r="5" fill="#0f172a" />
+      <text x="130" y="94" font-size="10" font-weight="bold" text-anchor="end" fill="#0f172a">-V (GND)</text>
+
+      <!-- ================= 1. ESP32-C3 SUPERMINI (TABLERO) ================= -->
+      <!-- Conector Antena IPEX Arriba -->
+      <rect x="75" y="126" width="100" height="18" rx="4" fill="#fbbf24" stroke="#b45309" stroke-width="1.5" />
+      <circle cx="88" cy="135" r="4.5" fill="#d97706" stroke="#78350f" />
+      <text x="135" y="139" font-size="8.5" font-weight="bold" fill="#78350f" text-anchor="middle">[ ANTENA IPEX
+        ]</text>
+
+      <!-- Placa ESP32-C3 SuperMini (16 pines físicos: 8 izquierda + 8 derecha) -->
+      <rect x="25" y="146" width="200" height="268" rx="8" fill="#eff6ff" stroke="#1d4ed8" stroke-width="2" />
+      <rect x="25" y="146" width="200" height="24" rx="8" fill="#1d4ed8" />
+      <text x="125" y="162" font-size="11" font-weight="bold" text-anchor="middle" fill="#ffffff">ESP32-C3 SuperMini
+        (TABLERO)</text>
+      <text x="125" y="182" font-size="8.5" text-anchor="middle" fill="#475569">MAC: AC:27:6E:FD:34:D0</text>
+
+      <!-- Conector USB-C Abajo -->
+      <rect x="95" y="414" width="60" height="15" rx="3" fill="#94a3b8" stroke="#475569" stroke-width="1.5" />
+      <text x="125" y="425" font-size="8" font-weight="bold" fill="#0f172a" text-anchor="middle">[ USB-C ]</text>
+
+      <!-- PINES LADO IZQUIERDO (8 Pines Físicos) -->
+      <!-- Pin 1: 5V (Alimentación) -->
+      <circle cx="35" cy="198" r="4" fill="#dc2626" />
+      <text x="44" y="202" font-size="9" font-weight="bold" fill="#dc2626">5V</text>
+      <polyline points="35,198 12,198 12,45 160,45" fill="none" stroke="#dc2626" stroke-width="2" />
+
+      <!-- Pin 2: G (GND Común) -->
+      <circle cx="35" cy="226" r="4" fill="#0f172a" />
+      <text x="44" y="230" font-size="9" font-weight="bold" fill="#0f172a">G (GND)</text>
+      <polyline points="35,226 18,226 18,90 160,90" fill="none" stroke="#0f172a" stroke-width="2" />
+
+      <!-- Pin 3: 3V3 (Libre) -->
+      <circle cx="35" cy="254" r="3.5" fill="#e2e8f0" stroke="#94a3b8" />
+      <text x="44" y="257" font-size="8" fill="#94a3b8">3V3</text>
+
+      <!-- Pin 4: 0 (Libre) -->
+      <circle cx="35" cy="282" r="3.5" fill="#e2e8f0" stroke="#94a3b8" />
+      <text x="44" y="285" font-size="8" fill="#94a3b8">0</text>
+
+      <!-- Pin 5: 1 (Libre) -->
+      <circle cx="35" cy="310" r="3.5" fill="#e2e8f0" stroke="#94a3b8" />
+      <text x="44" y="313" font-size="8" fill="#94a3b8">1</text>
+
+      <!-- Pin 6: 2 (Libre) -->
+      <circle cx="35" cy="338" r="3.5" fill="#e2e8f0" stroke="#94a3b8" />
+      <text x="44" y="341" font-size="8" fill="#94a3b8">2</text>
+
+      <!-- Pin 7: 3 (Libre) -->
+      <circle cx="35" cy="366" r="3.5" fill="#e2e8f0" stroke="#94a3b8" />
+      <text x="44" y="369" font-size="8" fill="#94a3b8">3</text>
+
+      <!-- Pin 8: 4 (GPIO 4: Salida Datos WS2811) -->
+      <circle cx="35" cy="394" r="4" fill="#0284c7" />
+      <text x="44" y="398" font-size="9" font-weight="bold" fill="#0284c7">4 ➔ Datos LED</text>
+      <polyline points="35,394 22,394 22,428 238,428 238,225 255,225" fill="none" stroke="#0284c7" stroke-width="2.5" />
+
+      <!-- PINES LADO DERECHO (8 Pines Físicos) -->
+      <!-- Pin 9: 5 (GPIO 5: Salida Relé Sirena 12V) -->
+      <circle cx="215" cy="198" r="4" fill="#7c3aed" />
+      <text x="206" y="202" font-size="9" font-weight="bold" fill="#7c3aed" text-anchor="end">Relé Sirena ➔ 5</text>
+      <polyline points="215,198 232,198 232,285 760,285 760,290 780,290" fill="none" stroke="#7c3aed"
+        stroke-width="2.5" />
+
+      <!-- Pin 10: 6 (GPIO 6: Salida Buzzer) -->
+      <circle cx="215" cy="226" r="4" fill="#059669" />
+      <text x="206" y="230" font-size="9" font-weight="bold" fill="#059669" text-anchor="end">Buzzer ➔ 6</text>
+      <polyline points="215,226 244,226 244,485 50,485" fill="none" stroke="#059669" stroke-width="2" />
+
+      <!-- Pin 11: 7 (Libre) -->
+      <circle cx="215" cy="254" r="3.5" fill="#e2e8f0" stroke="#94a3b8" />
+      <text x="206" y="257" font-size="8" fill="#94a3b8" text-anchor="end">7</text>
+
+      <!-- Pin 12: 8 (LED Azul Onboard) -->
+      <circle cx="215" cy="282" r="3.5" fill="#93c5fd" stroke="#2563eb" />
+      <text x="206" y="285" font-size="8" fill="#2563eb" text-anchor="end">8 (LED)</text>
+
+      <!-- Pin 13: 9 (BOOT Onboard) -->
+      <circle cx="215" cy="310" r="3.5" fill="#e2e8f0" stroke="#94a3b8" />
+      <text x="206" y="313" font-size="8" fill="#94a3b8" text-anchor="end">9 (BOOT)</text>
+
+      <!-- Pin 14: 10 (Libre) -->
+      <circle cx="215" cy="338" r="3.5" fill="#e2e8f0" stroke="#94a3b8" />
+      <text x="206" y="341" font-size="8" fill="#94a3b8" text-anchor="end">10</text>
+
+      <!-- Pin 15: 20 (RX - Libre) -->
+      <circle cx="215" cy="366" r="3.5" fill="#e2e8f0" stroke="#94a3b8" />
+      <text x="206" y="369" font-size="8" fill="#94a3b8" text-anchor="end">20 (RX)</text>
+
+      <!-- Pin 16: 21 (TX - Libre) -->
+      <circle cx="215" cy="394" r="3.5" fill="#e2e8f0" stroke="#94a3b8" />
+      <text x="206" y="398" font-size="8" fill="#94a3b8" text-anchor="end">21 (TX)</text>
+
+      <!-- ================= 2. ADAPTADOR DE NIVEL: LED BUFFER + DIODO 1N4007 ================= -->
+      <rect x="255" y="150" width="220" height="235" rx="8" fill="#fefce8" stroke="#ca8a04" stroke-width="2" />
+      <rect x="255" y="150" width="220" height="26" rx="8" fill="#ca8a04" />
+      <text x="365" y="168" font-size="11" font-weight="bold" text-anchor="middle" fill="#ffffff">LED BUFFER 3.3V ➔
+        5.0V</text>
+      <text x="365" y="190" font-size="8.5" text-anchor="middle" fill="#854d0e">(1 Pixel WS2811 Suelto + Diodo)</text>
+
+      <!-- Diodo 1N4007 -->
+      <rect x="290" y="202" width="60" height="22" rx="3" fill="#1e293b" stroke="#0f172a" stroke-width="1.5" />
+      <line x1="338" y1="202" x2="338" y2="224" stroke="#e2e8f0" stroke-width="4" /> <!-- Franja cátodo -->
+      <text x="315" y="217" font-size="8" font-weight="bold" fill="#ffffff">1N4007</text>
+
+      <!-- Cable de +5V al diodo y de ahí al LED suelto -->
+      <line x1="270" y1="45" x2="270" y2="213" stroke="#dc2626" stroke-width="2" />
+      <line x1="270" y1="213" x2="290" y2="213" stroke="#dc2626" stroke-width="2" />
+      <circle cx="270" cy="45" r="3" fill="#dc2626" />
+
+      <line x1="350" y1="213" x2="380" y2="213" stroke="#dc2626" stroke-width="2" />
+      <text x="382" y="217" font-size="9" font-weight="bold" fill="#dc2626">+4.4V (VCC)</text>
+      <text x="320" y="238" font-size="7.5" fill="#854d0e">Caída 0.7V ➔ umbral baja a 3.1V</text>
+
+      <!-- Representación interna del Pixel WS2811 suelto -->
+      <circle cx="365" cy="275" r="22" fill="#ffffff" stroke="#ca8a04" stroke-width="2" />
+      <text x="365" y="278" font-size="8" font-weight="bold" text-anchor="middle" fill="#854d0e">WS2811</text>
+      <text x="365" y="289" font-size="7" text-anchor="middle" fill="#64748b">(Buffer LED 0)</text>
+
+      <!-- GND del LED suelto -->
+      <polyline points="365,297 365,340 400,340 400,90" fill="none" stroke="#0f172a" stroke-width="2" />
+      <circle cx="400" cy="90" r="3" fill="#0f172a" />
+      <text x="375" y="335" font-size="8.5" font-weight="bold" fill="#0f172a">GND (Blanco)</text>
+
+      <!-- Entrada DI desde GPIO 4 -->
+      <line x1="205" y1="225" x2="255" y2="225" stroke="#0284c7" stroke-width="2.5" />
+      <line x1="255" y1="225" x2="343" y2="275" stroke="#0284c7" stroke-width="2.5" />
+      <text x="270" y="258" font-size="8.5" font-weight="bold" fill="#0284c7">DI (3.3V)</text>
+
+      <!-- Salida DO regenerada hacia la tira -->
+      <line x1="387" y1="275" x2="520" y2="275" stroke="#059669" stroke-width="3" />
+      <circle cx="520" cy="275" r="4" fill="#059669" />
+      <text x="440" y="268" font-size="9" font-weight="bold" fill="#059669">DO ➔ 5.0V Regenerado</text>
+      <text x="365" y="375" font-size="8.5" text-anchor="middle" fill="#166534"><b>Firmware:</b> LED 0 siempre APAGADO
+        (negro)</text>
+
+      <!-- ================= 3. TIRA WS2811 (239 LEDs) ================= -->
+      <rect x="520" y="150" width="230" height="235" rx="8" fill="#f0fdf4" stroke="#16a34a" stroke-width="2" />
+      <rect x="520" y="150" width="230" height="26" rx="8" fill="#16a34a" />
+      <text x="635" y="168" font-size="12" font-weight="bold" text-anchor="middle" fill="#ffffff">CADENA WS2811
+        (5V)</text>
+      <text x="635" y="190" font-size="9.5" font-weight="bold" text-anchor="middle" fill="#15803d">239 LEDs Físicos (LED
+        1 ➔ 239)</text>
+
+      <!-- Terminales entrada tira -->
+      <circle cx="520" cy="275" r="4" fill="#059669" />
+      <text x="532" y="279" font-size="10.5" font-weight="bold" fill="#059669">DI (Verde - Datos)</text>
+
+      <circle cx="520" cy="225" r="4" fill="#dc2626" />
+      <text x="532" y="229" font-size="10.5" font-weight="bold" fill="#dc2626">+5V (Rojo)</text>
+      <polyline points="520,225 505,225 505,45" fill="none" stroke="#dc2626" stroke-width="2" />
+      <circle cx="505" cy="45" r="3" fill="#dc2626" />
+
+      <circle cx="520" cy="325" r="4" fill="#0f172a" />
+      <text x="532" y="329" font-size="10.5" font-weight="bold" fill="#0f172a">GND (Blanco)</text>
+      <polyline points="520,325 505,325 505,90" fill="none" stroke="#0f172a" stroke-width="2" />
+      <circle cx="505" cy="90" r="3" fill="#0f172a" />
+
+      <!-- Capacitor 1000uF entre +5V y GND de la tira -->
+      <rect x="620" y="285" width="95" height="30" rx="4" fill="#ffffff" stroke="#334155" stroke-width="1.8" />
+      <text x="667" y="304" font-size="9" font-weight="bold" text-anchor="middle" fill="#334155">1000 µF ≥ 10V</text>
+      <line x1="635" y1="225" x2="635" y2="285" stroke="#dc2626" stroke-width="2" />
+      <text x="630" y="250" font-size="11" font-weight="bold" fill="#dc2626">+</text>
+      <line x1="695" y1="315" x2="695" y2="325" stroke="#0f172a" stroke-width="2" />
+      <text x="700" y="323" font-size="12" font-weight="bold" fill="#0f172a">−</text>
+      <text x="667" y="335" font-size="7.5" text-anchor="middle" fill="#64748b">Filtro antiruido de tira</text>
+
+      <!-- ================= 4. MÓDULO RELÉ (5V) + SIRENA 12V ================= -->
+      <rect x="780" y="150" width="295" height="235" rx="8" fill="#fef2f2" stroke="#dc2626" stroke-width="2" />
+      <rect x="780" y="150" width="295" height="26" rx="8" fill="#dc2626" />
+      <text x="927" y="168" font-size="12" font-weight="bold" text-anchor="middle" fill="#ffffff">MÓDULO RELÉ 5V
+        (Aislado)</text>
+      <text x="927" y="190" font-size="9.5" text-anchor="middle" fill="#991b1b">Disparo de Sirena de Fin de
+        Tiempo</text>
+
+      <!-- Pines entrada módulo relé -->
+      <circle cx="780" cy="220" r="4" fill="#dc2626" />
+      <text x="790" y="224" font-size="10" font-weight="bold" fill="#dc2626">VCC (5V)</text>
+      <polyline points="780,220 765,220 765,45" fill="none" stroke="#dc2626" stroke-width="2" />
+      <circle cx="765" cy="45" r="3" fill="#dc2626" />
+
+      <circle cx="780" cy="255" r="4" fill="#0f172a" />
+      <text x="790" y="259" font-size="10" font-weight="bold" fill="#0f172a">GND</text>
+      <polyline points="780,255 772,255 772,90" fill="none" stroke="#0f172a" stroke-width="2" />
+      <circle cx="772" cy="90" r="3" fill="#0f172a" />
+
+      <!-- Señal IN desde GPIO 5 -->
+      <circle cx="780" cy="290" r="4" fill="#7c3aed" />
+      <text x="790" y="294" font-size="10" font-weight="bold" fill="#7c3aed">IN (Señal)</text>
+      <polyline points="205,285 225,285 225,410 760,410 760,290 780,290" fill="none" stroke="#7c3aed"
+        stroke-width="2.5" />
+      <text x="480" y="405" font-size="9" font-weight="bold" fill="#7c3aed" text-anchor="middle">Línea GPIO 5 ➔ Disparo
+        Relé (LOW activo)</text>
+
+      <!-- Contactos de salida relé -->
+      <text x="880" y="235" font-size="10" font-weight="bold" fill="#b45309">COM</text>
+      <text x="880" y="275" font-size="10" font-weight="bold" fill="#b45309">NO (Normal Abierto)</text>
+
+      <!-- Circuito 12V Sirena -->
+      <rect x="800" y="325" width="115" height="45" rx="4" fill="#ffffff" stroke="#b45309" stroke-width="1.5" />
+      <text x="857" y="344" font-size="10" font-weight="bold" text-anchor="middle" fill="#b45309">SIRENA 12V</text>
+      <text x="857" y="358" font-size="8" text-anchor="middle" fill="#64748b">(Cancha / Bocina)</text>
+
+      <rect x="940" y="325" width="105" height="45" rx="4" fill="#f8fafc" stroke="#475569" stroke-width="1.5" />
+      <text x="992" y="344" font-size="9" font-weight="bold" text-anchor="middle" fill="#334155">FUENTE 12V</text>
+      <text x="992" y="358" font-size="8" text-anchor="middle" fill="#64748b">(Independiente)</text>
+
+      <polyline points="992,325 992,231 920,231" fill="none" stroke="#d97706" stroke-width="2" />
+      <polyline points="920,271 950,271 950,305 857,305 857,325" fill="none" stroke="#d97706" stroke-width="2" />
+      <line x1="880" y1="370" x2="880" y2="385" stroke="#000" stroke-width="2" />
+      <polyline points="880,385 1010,385 1010,370" fill="none" stroke="#000" stroke-width="2" />
+      <text x="945" y="380" font-size="8" fill="#444" text-anchor="middle">Circuito 12V 100% aislado del ESP32</text>
+
+      <!-- ================= 5. PIEZOELÉCTRICO PASIVO (BUZZER) ================= -->
+      <rect x="25" y="430" width="180" height="90" rx="8" fill="#f0fdf4" stroke="#059669" stroke-width="2" />
+      <rect x="25" y="430" width="180" height="24" rx="8" fill="#059669" />
+      <text x="115" y="447" font-size="11" font-weight="bold" text-anchor="middle" fill="#ffffff">PIEZOELÉCTRICO
+        (BUZZER)</text>
+
+      <circle cx="50" cy="485" r="4" fill="#059669" />
+      <text x="60" y="489" font-size="10.5" font-weight="bold" fill="#059669">+ (Positivo)</text>
+      <polyline points="205,340 215,340 215,485 50,485" fill="none" stroke="#059669" stroke-width="2" />
+      <text x="160" y="480" font-size="8.5" fill="#059669">GPIO 6</text>
+
+      <circle cx="50" cy="505" r="4" fill="#0f172a" />
+      <text x="60" y="509" font-size="10.5" font-weight="bold" fill="#0f172a">− (GND)</text>
+      <polyline points="50,505 5,505 5,90 160,90" fill="none" stroke="#0f172a" stroke-width="2" />
+
+      <!-- NOTAS AL PIE DEL ESQUEMA -->
+      <rect x="230" y="440" width="845" height="75" rx="6" fill="#fffbeb" stroke="#b45309" stroke-width="1.5" />
+      <text x="245" y="458" font-size="10" font-weight="bold" fill="#b45309">CONFIGURACIÓN PROBADA Y FUNCIONAL AL
+        100%:</text>
+      <text x="245" y="475" font-size="9" fill="#78350f">1. LED BUFFER + DIODO 1N4007: El diodo baja a 4.4V el primer
+        píxel WS2811 permitiendo leer directo los 3.3V del GPIO 4.</text>
+      <text x="245" y="491" font-size="9" fill="#78350f">2. REGENERACIÓN ACTIVA: La salida DO del LED buffer genera
+        pulsos cuadrados puros de 5V hacia los 239 LEDs del tablero.</text>
+      <text x="245" y="505" font-size="9" fill="#78350f">3. MASA COMÚN OBLIGATORIA: El pin G (GND) del ESP32-C3 debe
+        unirse sólidamente al negativo (-V) de la fuente 5V y de la tira.</text>
+    </svg>
+
+    <div class="success"><b>Arquitectura Optimizada:</b> Con el ESP32-C3 SuperMini y el LED buffer con diodo 1N4007 se
+      eliminan los chips obsoletos (74LS07 / MAX485). El firmware mantiene apagado en negro el LED 0 para que la
+      numeración del tablero inicie limpia en el LED 1.</div>
+  </section>
+
+  <!-- ===================== PÁGINA 2: POTENCIA ===================== -->
+  <section class="page">
+    <h1>2/4 · Alimentación y puntos de inyección</h1>
+    <div class="sub">Consumo máximo limitado por software a <b>7.5 A</b> (<code>MAX_MILLIAMPS 7500</code> para proteger
+      fuentes de 8A/10A). Inyectar +5V y GND en los LEDs <b>1, 106 y 239</b>.</div>
+
+    <svg viewBox="0 0 1100 520" xmlns="http://www.w3.org/2000/svg" style="max-height: 100mm;">
+      <!-- PSU -->
+      <rect x="30" y="100" width="150" height="330" rx="8" fill="#eee" stroke="#000" stroke-width="2" />
+      <text x="105" y="140" text-anchor="middle" font-size="15" font-weight="bold">FUENTE</text>
+      <text x="105" y="165" text-anchor="middle" font-size="13">5 V 10 A..40 A</text>
+      <text x="105" y="185" text-anchor="middle" font-size="10" fill="#059669">V-ADJ: 4.8V..5.0V</text>
+
+      <!-- Bornes PSU -->
+      <circle cx="150" cy="230" r="8" fill="#c00" />
+      <text x="135" y="235" font-size="13" font-weight="bold" fill="#c00" text-anchor="end">+V (5V)</text>
+      <circle cx="150" cy="310" r="8" fill="#000" />
+      <text x="135" y="315" font-size="13" font-weight="bold" text-anchor="end">−V (GND)</text>
+
+      <!-- Barras colectoras -->
+      <rect x="230" y="80" width="820" height="18" fill="#c00" rx="3" />
+      <text x="640" y="93" fill="#fff" font-size="11" font-weight="bold" text-anchor="middle">BARRA COLECTORA +5 V
+        (Cable 2,5 mm²)</text>
+
+      <rect x="230" y="440" width="820" height="18" fill="#000" rx="3" />
+      <text x="640" y="453" fill="#fff" font-size="11" font-weight="bold" text-anchor="middle">BARRA COLECTORA GND
+        (Cable 2,5 mm²)</text>
+
+      <!-- Cables fuente a barra -->
+      <line x1="150" y1="230" x2="230" y2="89" stroke="#c00" stroke-width="4" />
+      <line x1="150" y1="310" x2="230" y2="449" stroke="#000" stroke-width="4" />
+
+      <!-- Bloques de inyección -->
+      <!-- Inyección 1: LED 1 -->
+      <rect x="280" y="200" width="160" height="140" rx="6" fill="#fff" stroke="#000" stroke-width="1.5" />
+      <text x="360" y="225" text-anchor="middle" font-size="12" font-weight="bold">INYECCIÓN 1</text>
+      <text x="360" y="245" text-anchor="middle" font-size="11" fill="#059669">Inicio (LED 1)</text>
+      <text x="360" y="265" text-anchor="middle" font-size="9" fill="#666">Cerca del LED Buffer</text>
+      <line x1="360" y1="98" x2="360" y2="200" stroke="#c00" stroke-width="2.5" />
+      <line x1="360" y1="340" x2="360" y2="440" stroke="#000" stroke-width="2.5" />
+      <rect x="330" y="280" width="60" height="20" fill="#fff3cd" stroke="#856404" />
+      <text x="360" y="294" text-anchor="middle" font-size="9">1000 µF</text>
+
+      <!-- Inyección 2: LED 106 -->
+      <rect x="560" y="200" width="160" height="140" rx="6" fill="#fff" stroke="#000" stroke-width="1.5" />
+      <text x="640" y="225" text-anchor="middle" font-size="12" font-weight="bold">INYECCIÓN 2</text>
+      <text x="640" y="245" text-anchor="middle" font-size="11" fill="#059669">Medio (LED 106)</text>
+      <text x="640" y="265" text-anchor="middle" font-size="9" fill="#666">Bajada Faltas Visita</text>
+      <line x1="640" y1="98" x2="640" y2="200" stroke="#c00" stroke-width="2.5" />
+      <line x1="640" y1="340" x2="640" y2="440" stroke="#000" stroke-width="2.5" />
+
+      <!-- Inyección 3: LED 239 -->
+      <rect x="840" y="200" width="160" height="140" rx="6" fill="#fff" stroke="#000" stroke-width="1.5" />
+      <text x="920" y="225" text-anchor="middle" font-size="12" font-weight="bold">INYECCIÓN 3</text>
+      <text x="920" y="245" text-anchor="middle" font-size="11" fill="#059669">Final (LED 239)</text>
+      <text x="920" y="265" text-anchor="middle" font-size="9" fill="#666">Fin Segundos Tiempo</text>
+      <line x1="920" y1="98" x2="920" y2="200" stroke="#c00" stroke-width="2.5" />
+      <line x1="920" y1="340" x2="920" y2="440" stroke="#000" stroke-width="2.5" />
+    </svg>
+
+    <div class="cols">
+      <div>
+        <h2>Puntos críticos de inyección</h2>
+        <ul class="check">
+          <li><b>Inicio (LED 1):</b> Alimenta el primer tramo (Local, Período, Visita).</li>
+          <li><b>Centro (LED 106):</b> Alimenta los bloques de Faltas y arranque de Tiempo.</li>
+          <li><b>Final (LED 239):</b> Mantiene el blanco puro en los segundos sin caída de tensión.</li>
+          <li><b>Capacitor de desacoplo:</b> 1000 µF (16V) en la entrada de la tira junto al LED buffer.</li>
+        </ul>
+      </div>
+      <div>
+        <h2>Seguridad Eléctrica y Cableado</h2>
+        <ul class="check">
+          <li>Usar cable de sección ≥ 1.5 mm² para las derivaciones y ≥ 2.5 mm² para las líneas maestras.</li>
+          <li>Ajustar el tornillo V-ADJ de la fuente a <b>4.8V – 5.0V</b> (nunca superar 5.3V).</li>
+          <li>Límite de seguridad en código fijado en <b>7.5 A</b> (<code>MAX_MILLIAMPS 7500</code>).</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== PÁGINA 3: MAPA DE LEDS ===================== -->
+  <section class="page">
+    <h1>3/4 · Mapa de LEDs y Secuencia de Conexión (Ruta Serpiente)</h1>
+
+    <div class="cols">
+      <div>
+        <h2>Secuencia en serie (240 LEDs en buffer, 239 en tablero)</h2>
+        <div style="font-size:8.5pt;color:#333;margin-bottom:2mm">
+          <b>LED 0 (Buffer):</b> En placa con diodo 1N4007 (siempre apagado).<br>
+          <b>LEDs 1..239:</b> Tablero deportivo en ruta continua serpiente.
+        </div>
+        <table>
+          <tr>
+            <th>Paso / Sección</th>
+            <th>Rango LEDs</th>
+            <th>Cant.</th>
+            <th>Color Oficial</th>
+          </tr>
+          <tr style="background:#e2e8f0">
+            <td><b>0. LED Buffer (Placa)</b></td>
+            <td><b>0</b></td>
+            <td><b>1</b></td>
+            <td><b>Apagado (Negro)</b></td>
+          </tr>
+          <tr style="background:#fff3e0">
+            <td>1. LOCAL – decena</td>
+            <td>1 – 21</td>
+            <td>21</td>
+            <td>Ámbar (Configurable)</td>
+          </tr>
+          <tr style="background:#fff3e0">
+            <td>2. LOCAL – unidad</td>
+            <td>22 – 42</td>
+            <td>21</td>
+            <td>Ámbar (Configurable)</td>
+          </tr>
+          <tr style="background:#e0f2fe">
+            <td>3. PERÍODO</td>
+            <td>43 – 63</td>
+            <td>21</td>
+            <td>Celeste</td>
+          </tr>
+          <tr style="background:#ecfdf5">
+            <td>4. VISITA – decena</td>
+            <td>64 – 84</td>
+            <td>21</td>
+            <td>Verde (Configurable)</td>
+          </tr>
+          <tr style="background:#ecfdf5">
+            <td>5. VISITA – unidad</td>
+            <td>85 – 105</td>
+            <td>21</td>
+            <td>Verde (Configurable)</td>
+          </tr>
+          <tr style="background:#fef3c7">
+            <td>6. FALTAS VISITA (1..6)</td>
+            <td>106 – 129</td>
+            <td>24</td>
+            <td>1..5 Ámbar, 6ta Roja</td>
+          </tr>
+          <tr style="background:#fef3c7">
+            <td>7. FALTAS LOCAL (6..1)</td>
+            <td>130 – 153</td>
+            <td>24</td>
+            <td>6ta Roja, 5..1 Ámbar</td>
+          </tr>
+          <tr style="background:#f8fafc">
+            <td>8. TIEMPO – min. decena</td>
+            <td>154 – 174</td>
+            <td>21</td>
+            <td>Blanco (Último min Rojo)</td>
+          </tr>
+          <tr style="background:#f8fafc">
+            <td>9. TIEMPO – min. unidad</td>
+            <td>175 – 195</td>
+            <td>21</td>
+            <td>Blanco (Último min Rojo)</td>
+          </tr>
+          <tr style="background:#f8fafc">
+            <td>10. DOS PUNTOS (:)</td>
+            <td>196 – 197</td>
+            <td>2</td>
+            <td>Blanco (Parpadeo)</td>
+          </tr>
+          <tr style="background:#f8fafc">
+            <td>11. TIEMPO – seg. decena</td>
+            <td>198 – 218</td>
+            <td>21</td>
+            <td>Blanco (Último min Rojo)</td>
+          </tr>
+          <tr style="background:#f8fafc">
+            <td>12. TIEMPO – seg. unidad</td>
+            <td>219 – 239</td>
+            <td>21</td>
+            <td>Blanco (Último min Rojo)</td>
+          </tr>
+          <tr style="font-weight:bold;background:#e2e8f0">
+            <th colspan="2">TOTAL CADENA</th>
+            <th>240</th>
+            <th></th>
+          </tr>
+        </table>
+      </div>
+
+      <div>
+        <h2>Estructura de Dígitos de 7 Segmentos</h2>
+        <table>
+          <tr>
+            <th>Seg.</th>
+            <th>A</th>
+            <th>B</th>
+            <th>C</th>
+            <th>D</th>
+            <th>E</th>
+            <th>F</th>
+            <th>G</th>
+          </tr>
+          <tr>
+            <td>LEDs</td>
+            <td>0–2</td>
+            <td>3–5</td>
+            <td>6–8</td>
+            <td>9–11</td>
+            <td>12–14</td>
+            <td>15–17</td>
+            <td>18–20</td>
+          </tr>
+        </table>
+        <svg viewBox="0 0 220 150" style="width:200px;margin-top:3mm;border:none">
+          <polygon points="40,10 140,10 150,20 140,30 40,30 30,20" fill="#ddd" stroke="#000" /><text x="85" y="25"
+            font-size="11">A</text>
+          <polygon points="150,25 160,35 160,70 150,80 140,70 140,35" fill="#ddd" stroke="#000" /><text x="147" y="55"
+            font-size="11">B</text>
+          <polygon points="150,85 160,95 160,130 150,140 140,130 140,95" fill="#ddd" stroke="#000" /><text x="147"
+            y="115" font-size="11">C</text>
+          <polygon points="40,135 140,135 150,145 140,155 40,155 30,145" fill="#ddd" stroke="#000"
+            transform="translate(0,-15)" /><text x="85" y="140" font-size="11">D</text>
+          <polygon points="30,85 40,95 40,130 30,140 20,130 20,95" fill="#ddd" stroke="#000" /><text x="27" y="115"
+            font-size="11">E</text>
+          <polygon points="30,25 40,35 40,70 30,80 20,70 20,35" fill="#ddd" stroke="#000" /><text x="27" y="55"
+            font-size="11">F</text>
+          <polygon points="40,70 140,70 150,80 140,90 40,90 30,80" fill="#ddd" stroke="#000"
+            transform="translate(0,-5)" /><text x="85" y="80" font-size="11">G</text>
+        </svg>
+        <div style="font-size:8.5pt;color:#444;margin-top:2mm;">
+          <b>Enlace Inalámbrico ESP-NOW (Cifrado AES):</b><br>
+          • Tablero MAC: <code>AC:27:6E:FD:34:D0</code><br>
+          • Remoto MAC: <code>AC:27:6E:FD:3D:00</code><br>
+          • Antenas externas IPEX de 5 dBi conectadas en ambos extremos.
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== PÁGINA 4: CONTROL REMOTO (ESP32-C3 SUPERMINI) ===================== -->
+  <section class="page">
+    <h1>4/4 · Consola de Control Remoto (ESP32-C3 SuperMini)</h1>
+    <div class="sub">Disposición de teclas y conexionado directo al <b>ESP32-C3 SuperMini</b> (GND común con
+      <code>INPUT_PULLUP</code> interno). Funciones combinadas de <b>Shift</b>, cambio de color y presets de tiempo.
+    </div>
+
+    <svg viewBox="0 0 1100 580" xmlns="http://www.w3.org/2000/svg" style="max-height: 85mm;">
+      <defs>
+        <!-- Gradientes y efectos -->
+        <linearGradient id="panelGrad" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#2a2e39" />
+          <stop offset="100%" stop-color="#16181f" />
+        </linearGradient>
+        <linearGradient id="greenBtn" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#22c55e" />
+          <stop offset="100%" stop-color="#15803d" />
+        </linearGradient>
+        <linearGradient id="amberBtn" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#fbbf24" />
+          <stop offset="100%" stop-color="#d97706" />
+        </linearGradient>
+        <linearGradient id="blueBtn" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#38bdf8" />
+          <stop offset="100%" stop-color="#0284c7" />
+        </linearGradient>
+        <linearGradient id="redBtn" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#ef4444" />
+          <stop offset="100%" stop-color="#991b1b" />
+        </linearGradient>
+        <!-- <linearGradient id="grayBtn" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#64748b"/>
+      <stop offset="100%" stop-color="#334155"/>
+    </linearGradient> -->
+      </defs>
+
+      <!-- ==================== BLOQUE IZQUIERDO: VISTA FÍSICA DE LA CONSOLA ==================== -->
+      <g id="consola-fisica">
+        <rect x="30" y="20" width="490" height="540" rx="18" fill="#0f1117" stroke="#475569" stroke-width="3" />
+        <rect x="42" y="32" width="466" height="516" rx="14" fill="url(#panelGrad)" stroke="#334155" stroke-width="2" />
+
+        <!-- Tornillos esquinas -->
+        <circle cx="54" cy="44" r="4.5" fill="#64748b" stroke="#1e293b" />
+        <circle cx="496" cy="44" r="4.5" fill="#64748b" stroke="#1e293b" />
+        <circle cx="54" cy="536" r="4.5" fill="#64748b" stroke="#1e293b" />
+        <circle cx="496" cy="536" r="4.5" fill="#64748b" stroke="#1e293b" />
+
+        <!-- Cabezal serigrafía -->
+        <text x="275" y="60" text-anchor="middle" font-size="14" font-weight="bold" fill="#f8fafc"
+          letter-spacing="1">TABLERO BÁSQUET &amp; FUTSAL</text>
+        <text x="275" y="76" text-anchor="middle" font-size="9.5" fill="#94a3b8">CONTROL REMOTO INALÁMBRICO ESP-NOW
+          (ESP32-C3)</text>
+
+        <!-- Bocina y LED link -->
+        <rect x="58" y="52" width="60" height="24" rx="4" fill="url(#grayBtn)" stroke="#0f172a" stroke-width="1.5" />
+        <text x="88" y="68" text-anchor="middle" font-size="9" font-weight="bold" fill="#fff">BOCINA</text>
+
+        <circle cx="475" cy="64" r="6" fill="#38bdf8" stroke="#0284c7" stroke-width="2" />
+        <text x="475" y="80" text-anchor="middle" font-size="8" fill="#94a3b8">LINK (GPIO8)</text>
+
+        <!-- ZONA LOCAL -->
+        <rect x="55" y="98" width="125" height="260" rx="10" fill="#1e293b" stroke="#059669" stroke-width="1.8" />
+        <rect x="55" y="98" width="125" height="28" rx="10" fill="#065f46" />
+        <text x="117" y="117" text-anchor="middle" font-size="13" font-weight="bold" fill="#ecfdf5">LOCAL</text>
+
+        <!-- Botón Gol Local -->
+        <circle cx="117" cy="180" r="32" fill="url(#greenBtn)" stroke="#047857" stroke-width="3" />
+        <text x="117" y="186" text-anchor="middle" font-size="13" font-weight="bold" fill="#fff">+ PUNTOS</text>
+        <text x="117" y="225" text-anchor="middle" font-size="9" fill="#94a3b8">GPIO 1</text>
+
+        <!-- Botón Falta Local -->
+        <circle cx="117" cy="285" r="26" fill="url(#amberBtn)" stroke="#b45309" stroke-width="2.5" />
+        <text x="117" y="290" text-anchor="middle" font-size="11" font-weight="bold" fill="#fff">+ FALTA</text>
+        <text x="117" y="325" text-anchor="middle" font-size="9" fill="#94a3b8">GPIO 4</text>
+
+        <!-- ZONA CRONÓMETRO Y PERÍODO (CENTRO) -->
+        <!-- Período -->
+        <rect x="210" y="98" width="130" height="72" rx="10" fill="#1e293b" stroke="#0284c7" stroke-width="1.5" />
+        <circle cx="275" cy="132" r="20" fill="url(#blueBtn)" stroke="#0369a1" stroke-width="2.5" />
+        <text x="275" y="136" text-anchor="middle" font-size="9.5" font-weight="bold" fill="#fff">PERÍODO</text>
+        <text x="275" y="162" text-anchor="middle" font-size="8.5" fill="#94a3b8">GPIO 3 (1..9)</text>
+
+        <!-- Botón Tiempo (Start/Stop único) -->
+        <rect x="195" y="180" width="160" height="178" rx="14" fill="#0f172a" stroke="#22c55e" stroke-width="2.5" />
+        <text x="275" y="202" text-anchor="middle" font-size="11" font-weight="bold" fill="#86efac">CRONÓMETRO</text>
+        <circle cx="275" cy="260" r="42" fill="url(#greenBtn)" stroke="#14532d" stroke-width="4" />
+        <text x="275" y="256" text-anchor="middle" font-size="14" font-weight="bold" fill="#fff">START</text>
+        <text x="275" y="274" text-anchor="middle" font-size="14" font-weight="bold" fill="#fff">STOP</text>
+        <text x="275" y="325" text-anchor="middle" font-size="10" font-weight="bold" fill="#fff">GPIO 0</text>
+        <text x="275" y="340" text-anchor="middle" font-size="8.5" fill="#94a3b8">Start / Stop / Presets</text>
+
+        <!-- ZONA VISITA -->
+        <rect x="370" y="98" width="125" height="260" rx="10" fill="#1e293b" stroke="#059669" stroke-width="1.8" />
+        <rect x="370" y="98" width="125" height="28" rx="10" fill="#065f46" />
+        <text x="432" y="117" text-anchor="middle" font-size="13" font-weight="bold" fill="#ecfdf5">VISITA</text>
+
+        <!-- Botón Gol Visita -->
+        <circle cx="432" cy="180" r="32" fill="url(#greenBtn)" stroke="#047857" stroke-width="3" />
+        <text x="432" y="186" text-anchor="middle" font-size="13" font-weight="bold" fill="#fff">+ PUNTOS</text>
+        <text x="432" y="225" text-anchor="middle" font-size="9" fill="#94a3b8">GPIO 2</text>
+
+        <!-- Botón Falta Visita -->
+        <circle cx="432" cy="285" r="26" fill="url(#amberBtn)" stroke="#b45309" stroke-width="2.5" />
+        <text x="432" y="290" text-anchor="middle" font-size="11" font-weight="bold" fill="#fff">+ FALTA</text>
+        <text x="432" y="325" text-anchor="middle" font-size="9" fill="#94a3b8">GPIO 5</text>
+
+        <!-- ZONA INFERIOR: TECLA MAESTRA RETROCEDER (SHIFT) -->
+        <rect x="55" y="375" width="440" height="150" rx="12" fill="#2d1215" stroke="#ef4444" stroke-width="2" />
+        <text x="275" y="398" text-anchor="middle" font-size="11" font-weight="bold" fill="#fca5a5"
+          letter-spacing="1">COMANDO MAESTRO DE MODIFICACIÓN</text>
+
+        <rect x="85" y="412" width="380" height="52" rx="10" fill="url(#redBtn)" stroke="#7f1d1d" stroke-width="3" />
+        <circle cx="115" cy="438" r="14" fill="#7f1d1d" />
+        <text x="115" y="443" text-anchor="middle" font-size="14" font-weight="bold" fill="#fff">◄◄</text>
+        <text x="285" y="444" text-anchor="middle" font-size="15" font-weight="bold" fill="#fff"
+          letter-spacing="1">SHIFT / RETROCEDER (GPIO 7)</text>
+
+        <text x="275" y="483" text-anchor="middle" font-size="9.5" font-weight="bold" fill="#fee2e2">• Shift + Tiempo:
+          Resta -1 min | Shift + Tiempo (>1.5s): Cicla Presets (5, 10, 12, 15, 20, 25m)</text>
+        <text x="275" y="500" text-anchor="middle" font-size="9.5" fill="#fca5a5">• Shift + Local / Visita: -1 punto |
+          Mantener >1.5s: Cambia Color de Equipo</text>
+        <text x="275" y="516" text-anchor="middle" font-size="9" fill="#f87171">• Shift + Período (>1.5s): Cambia
+          Básquet ↔ Futsal | Shift + Bocina: Test Dígitos</text>
+      </g>
+
+      <!-- ==================== BLOQUE DERECHO: CONEXIONADO ELÉCTRICO ==================== -->
+      <g id="conexionado-esp32">
+        <rect x="560" y="20" width="510" height="540" rx="16" fill="#f8fafc" stroke="#000" stroke-width="2" />
+        <text x="815" y="46" text-anchor="middle" font-size="12.5" font-weight="bold" fill="#0f172a">ESQUEMA FÍSICO Y
+          CONEXIONADO · ESP32-C3 SUPERMINI (CONTROL)</text>
+        <text x="815" y="62" text-anchor="middle" font-size="9" fill="#475569">Módulo de 16 pines (8 pines por lado) ·
+          Conexión directa a pulsadores con GND común</text>
+
+        <!-- Conector Antena IPEX Arriba -->
+        <rect x="635" y="85" width="95" height="18" rx="4" fill="#fbbf24" stroke="#b45309" stroke-width="1.5" />
+        <circle cx="647" cy="94" r="4.5" fill="#d97706" stroke="#78350f" />
+        <text x="688" y="98" font-size="8.5" font-weight="bold" fill="#78350f" text-anchor="middle">[ ANTENA IPEX
+          ]</text>
+
+        <!-- Placa ESP32-C3 SuperMini (Control) -->
+        <rect x="585" y="105" width="195" height="340" rx="8" fill="#eff6ff" stroke="#1d4ed8" stroke-width="2" />
+        <rect x="585" y="105" width="195" height="24" rx="8" fill="#1d4ed8" />
+        <text x="682" y="121" font-size="11" font-weight="bold" text-anchor="middle" fill="#ffffff">ESP32-C3 SuperMini
+          (CONTROL)</text>
+        <text x="682" y="141" font-size="8.5" text-anchor="middle" fill="#475569">MAC: AC:27:6E:FD:3D:00</text>
+
+        <!-- Conector USB-C Abajo -->
+        <rect x="652" y="445" width="60" height="15" rx="3" fill="#94a3b8" stroke="#475569" stroke-width="1.5" />
+        <text x="682" y="456" font-size="8" font-weight="bold" fill="#0f172a" text-anchor="middle">[ USB-C ]</text>
+
+        <!-- ================= PINES LADO IZQUIERDO (8 Pines Físicos) ================= -->
+        <!-- 1. 5V (Alimentación) -->
+        <circle cx="595" cy="155" r="4" fill="#dc2626" />
+        <text x="604" y="159" font-size="9" font-weight="bold" fill="#dc2626">5V</text>
+        <polyline points="595,155 572,155 572,130" fill="none" stroke="#dc2626" stroke-width="2" />
+        <text x="568" y="125" font-size="7.5" font-weight="bold" fill="#dc2626" text-anchor="middle">+5V Bat/USB</text>
+
+        <!-- 2. G (GND Común) -->
+        <circle cx="595" cy="190" r="4" fill="#0f172a" />
+        <text x="604" y="194" font-size="9" font-weight="bold" fill="#0f172a">G (GND)</text>
+        <polyline points="595,190 568,190 568,468 1035,468 1035,440" fill="none" stroke="#0f172a" stroke-width="3" />
+
+        <!-- 3. 3V3 (Libre) -->
+        <circle cx="595" cy="225" r="3.5" fill="#e2e8f0" stroke="#94a3b8" />
+        <text x="604" y="228" font-size="8" fill="#94a3b8">3V3</text>
+
+        <!-- 4. 0 (GPIO 0 ➔ TIEMPO) -->
+        <circle cx="595" cy="260" r="4" fill="#15803d" />
+        <text x="604" y="264" font-size="9" font-weight="bold" fill="#15803d">0 ➔ Tiempo</text>
+        <polyline points="595,260 575,260 575,80 810,80 810,121 820,121" fill="none" stroke="#15803d"
+          stroke-width="2" />
+
+        <!-- 5. 1 (GPIO 1 ➔ LOCAL) -->
+        <circle cx="595" cy="295" r="4" fill="#059669" />
+        <text x="604" y="299" font-size="9" font-weight="bold" fill="#059669">1 ➔ Local</text>
+        <polyline points="595,295 578,295 578,95 814,95 814,166 820,166" fill="none" stroke="#059669"
+          stroke-width="2" />
+
+        <!-- 6. 2 (GPIO 2 ➔ VISITA) -->
+        <circle cx="595" cy="330" r="4" fill="#059669" />
+        <text x="604" y="334" font-size="9" font-weight="bold" fill="#059669">2 ➔ Visita</text>
+        <polyline points="595,330 581,330 581,211 820,211" fill="none" stroke="#059669" stroke-width="2" />
+
+        <!-- 7. 3 (GPIO 3 ➔ PERÍODO) -->
+        <circle cx="595" cy="365" r="4" fill="#0284c7" />
+        <text x="604" y="369" font-size="9" font-weight="bold" fill="#0284c7">3 ➔ Período</text>
+        <polyline points="595,365 581,365 581,256 820,256" fill="none" stroke="#0284c7" stroke-width="2" />
+
+        <!-- 8. 4 (GPIO 4 ➔ FALTA LOCAL) -->
+        <circle cx="595" cy="400" r="4" fill="#d97706" />
+        <text x="604" y="404" font-size="9" font-weight="bold" fill="#d97706">4 ➔ Falta Loc</text>
+        <polyline points="595,400 581,400 581,301 820,301" fill="none" stroke="#d97706" stroke-width="2" />
+
+        <!-- ================= PINES LADO DERECHO (8 Pines Físicos) ================= -->
+        <!-- 9. 5 (GPIO 5 ➔ FALTA VISITA) -->
+        <circle cx="770" cy="155" r="4" fill="#d97706" />
+        <text x="761" y="159" font-size="9" font-weight="bold" fill="#d97706" text-anchor="end">Falta Vis ➔ 5</text>
+        <polyline points="770,155 790,155 790,346 820,346" fill="none" stroke="#d97706" stroke-width="2" />
+
+        <!-- 10. 6 (GPIO 6 ➔ BOCINA / TEST) -->
+        <circle cx="770" cy="190" r="4" fill="#475569" />
+        <text x="761" y="194" font-size="9" font-weight="bold" fill="#475569" text-anchor="end">Bocina ➔ 6</text>
+        <polyline points="770,190 795,190 795,391 820,391" fill="none" stroke="#475569" stroke-width="2" />
+
+        <!-- 11. 7 (GPIO 7 ➔ SHIFT / RETROCEDER) -->
+        <circle cx="770" cy="225" r="4" fill="#dc2626" />
+        <text x="761" y="229" font-size="9" font-weight="bold" fill="#dc2626" text-anchor="end">Shift ➔ 7</text>
+        <polyline points="770,225 800,225 800,436 820,436" fill="none" stroke="#dc2626" stroke-width="2.5" />
+
+        <!-- 12. 8 (GPIO 8: LED Azul Onboard) -->
+        <circle cx="770" cy="260" r="4" fill="#93c5fd" stroke="#2563eb" />
+        <text x="761" y="264" font-size="8.5" font-weight="bold" fill="#2563eb" text-anchor="end">8 (LED Azul
+          ACK)</text>
+
+        <!-- 13. 9 (GPIO 9: Botón BOOT Onboard) -->
+        <circle cx="770" cy="295" r="3.5" fill="#e2e8f0" stroke="#94a3b8" />
+        <text x="761" y="298" font-size="8" fill="#94a3b8" text-anchor="end">9 (BOOT)</text>
+
+        <!-- 14. 10 (Libre) -->
+        <circle cx="770" cy="330" r="3.5" fill="#e2e8f0" stroke="#94a3b8" />
+        <text x="761" y="333" font-size="8" fill="#94a3b8" text-anchor="end">10</text>
+
+        <!-- 15. 20 (RX - Libre) -->
+        <circle cx="770" cy="365" r="3.5" fill="#e2e8f0" stroke="#94a3b8" />
+        <text x="761" y="368" font-size="8" fill="#94a3b8" text-anchor="end">20 (RX)</text>
+
+        <!-- 16. 21 (TX - Libre) -->
+        <circle cx="770" cy="400" r="3.5" fill="#e2e8f0" stroke="#94a3b8" />
+        <text x="761" y="403" font-size="8" fill="#94a3b8" text-anchor="end">21 (TX)</text>
+
+        <!-- ================= LOS 8 PULSADORES ESQUEMÁTICOS ================= -->
+        <!-- Riel Bus GND de los pulsadores -->
+        <line x1="1035" y1="105" x2="1035" y2="445" stroke="#000" stroke-width="3.5" />
+        <text x="1042" y="275" font-size="9" font-weight="bold" fill="#000">BUS GND</text>
+
+        <!-- 1. Tiempo (GPIO 0) -->
+        <rect x="820" y="110" width="85" height="22" rx="4" fill="#dcfce7" stroke="#15803d" />
+        <text x="862" y="125" text-anchor="middle" font-size="8.5" font-weight="bold" fill="#15803d">1. TIEMPO
+          (0)</text>
+        <line x1="905" y1="121" x2="940" y2="121" stroke="#15803d" stroke-width="2" />
+        <circle cx="945" cy="121" r="3" fill="#fff" stroke="#000" />
+        <line x1="948" y1="118" x2="962" y2="110" stroke="#000" stroke-width="1.5" />
+        <circle cx="965" cy="121" r="3" fill="#fff" stroke="#000" />
+        <line x1="968" y1="121" x2="1035" y2="121" stroke="#000" stroke-width="2" />
+
+        <!-- 2. Local (GPIO 1) -->
+        <rect x="820" y="155" width="85" height="22" rx="4" fill="#d1fae5" stroke="#059669" />
+        <text x="862" y="170" text-anchor="middle" font-size="8.5" font-weight="bold" fill="#059669">2. LOCAL (1)</text>
+        <line x1="905" y1="166" x2="940" y2="166" stroke="#059669" stroke-width="2" />
+        <circle cx="945" cy="166" r="3" fill="#fff" stroke="#000" />
+        <line x1="948" y1="163" x2="962" y2="155" stroke="#000" stroke-width="1.5" />
+        <circle cx="965" cy="166" r="3" fill="#fff" stroke="#000" />
+        <line x1="968" y1="166" x2="1035" y2="166" stroke="#000" stroke-width="2" />
+
+        <!-- 3. Visita (GPIO 2) -->
+        <rect x="820" y="200" width="85" height="22" rx="4" fill="#d1fae5" stroke="#059669" />
+        <text x="862" y="215" text-anchor="middle" font-size="8.5" font-weight="bold" fill="#059669">3. VISITA
+          (2)</text>
+        <line x1="905" y1="211" x2="940" y2="211" stroke="#059669" stroke-width="2" />
+        <circle cx="945" cy="211" r="3" fill="#fff" stroke="#000" />
+        <line x1="948" y1="208" x2="962" y2="200" stroke="#000" stroke-width="1.5" />
+        <circle cx="965" cy="211" r="3" fill="#fff" stroke="#000" />
+        <line x1="968" y1="211" x2="1035" y2="211" stroke="#000" stroke-width="2" />
+
+        <!-- 4. Período (GPIO 3) -->
+        <rect x="820" y="245" width="85" height="22" rx="4" fill="#e0f2fe" stroke="#0284c7" />
+        <text x="862" y="260" text-anchor="middle" font-size="8.5" font-weight="bold" fill="#0284c7">4. PERÍODO
+          (3)</text>
+        <line x1="905" y1="256" x2="940" y2="256" stroke="#0284c7" stroke-width="2" />
+        <circle cx="945" cy="256" r="3" fill="#fff" stroke="#000" />
+        <line x1="948" y1="253" x2="962" y2="245" stroke="#000" stroke-width="1.5" />
+        <circle cx="965" cy="256" r="3" fill="#fff" stroke="#000" />
+        <line x1="968" y1="256" x2="1035" y2="256" stroke="#000" stroke-width="2" />
+
+        <!-- 5. Falta Local (GPIO 4) -->
+        <rect x="820" y="290" width="85" height="22" rx="4" fill="#fef3c7" stroke="#d97706" />
+        <text x="862" y="305" text-anchor="middle" font-size="8.5" font-weight="bold" fill="#d97706">5. FALTA L
+          (4)</text>
+        <line x1="905" y1="301" x2="940" y2="301" stroke="#d97706" stroke-width="2" />
+        <circle cx="945" cy="301" r="3" fill="#fff" stroke="#000" />
+        <line x1="948" y1="298" x2="962" y2="290" stroke="#000" stroke-width="1.5" />
+        <circle cx="965" cy="301" r="3" fill="#fff" stroke="#000" />
+        <line x1="968" y1="301" x2="1035" y2="301" stroke="#000" stroke-width="2" />
+
+        <!-- 6. Falta Visita (GPIO 5) -->
+        <rect x="820" y="335" width="85" height="22" rx="4" fill="#fef3c7" stroke="#d97706" />
+        <text x="862" y="350" text-anchor="middle" font-size="8.5" font-weight="bold" fill="#d97706">6. FALTA V
+          (5)</text>
+        <line x1="905" y1="346" x2="940" y2="346" stroke="#d97706" stroke-width="2" />
+        <circle cx="945" cy="346" r="3" fill="#fff" stroke="#000" />
+        <line x1="948" y1="343" x2="962" y2="335" stroke="#000" stroke-width="1.5" />
+        <circle cx="965" cy="346" r="3" fill="#fff" stroke="#000" />
+        <line x1="968" y1="346" x2="1035" y2="346" stroke="#000" stroke-width="2" />
+
+        <!-- 7. Bocina (GPIO 6) -->
+        <rect x="820" y="380" width="85" height="22" rx="4" fill="#f1f5f9" stroke="#475569" />
+        <text x="862" y="395" text-anchor="middle" font-size="8.5" font-weight="bold" fill="#475569">7. BOCINA
+          (6)</text>
+        <line x1="905" y1="391" x2="940" y2="391" stroke="#475569" stroke-width="2" />
+        <circle cx="945" cy="391" r="3" fill="#fff" stroke="#000" />
+        <line x1="948" y1="388" x2="962" y2="380" stroke="#000" stroke-width="1.5" />
+        <circle cx="965" cy="391" r="3" fill="#fff" stroke="#000" />
+        <line x1="968" y1="391" x2="1035" y2="391" stroke="#000" stroke-width="2" />
+
+        <!-- 8. Shift / Retroceder (GPIO 7) -->
+        <rect x="820" y="425" width="85" height="22" rx="4" fill="#fee2e2" stroke="#dc2626" />
+        <text x="862" y="440" text-anchor="middle" font-size="8.5" font-weight="bold" fill="#dc2626">8. SHIFT (7)</text>
+        <line x1="905" y1="436" x2="940" y2="436" stroke="#dc2626" stroke-width="2.5" />
+        <circle cx="945" cy="436" r="3" fill="#fff" stroke="#000" />
+        <line x1="948" y1="433" x2="962" y2="425" stroke="#000" stroke-width="1.5" />
+        <circle cx="965" cy="436" r="3" fill="#fff" stroke="#000" />
+        <line x1="968" y1="436" x2="1035" y2="436" stroke="#000" stroke-width="2.5" />
+
+        <!-- Recuadro explicativo -->
+        <rect x="580" y="488" width="470" height="60" rx="6" fill="#fffbeb" stroke="#b45309" stroke-width="1.5" />
+        <text x="590" y="506" font-size="10" font-weight="bold" fill="#b45309">⚡ Conexión Directa a GND (Pull-Up
+          interno):</text>
+        <text x="590" y="521" font-size="9" fill="#78350f">Cada uno de los 8 pulsadores va conectado directamente entre
+          su pin GPIO y el pin G (GND).</text>
+        <text x="590" y="535" font-size="9" fill="#78350f">No se usan resistencias externas. El ESP32-C3 activa
+          resistencias pull-up internas por software.</text>
+      </g>
+    </svg>
+
+    <div class="cols" style="margin-top: 1.5mm;">
+      <div>
+        <h2>Matriz de Operación del Tablero de Mandos</h2>
+        <table>
+          <tr>
+            <th>Función</th>
+            <th>GPIO C3</th>
+            <th>Pulsación Normal</th>
+            <th>Con [SHIFT / RETROCEDER] Presionado</th>
+          </tr>
+          <tr>
+            <td><b>TIEMPO START/STOP</b></td>
+            <td><b>GPIO 0</b></td>
+            <td><b style="color:#15803d">Inicia / Pausa el reloj</b></td>
+            <td><b>Toque:</b> Resta 1 min (−1:00) · <b>Mantener >1.5s:</b> Cicla presets (5, 10, 12, 15, 20, 25m)</td>
+          </tr>
+          <tr>
+            <td><b>PUNTOS LOCAL</b></td>
+            <td><b>GPIO 1</b></td>
+            <td><b>+1</b> Punto Local (0..99)</td>
+            <td><b>Toque:</b> <b style="color:#c00">−1</b> Punto · <b>Mantener >1.5s:</b> Cambia Color Local</td>
+          </tr>
+          <tr>
+            <td><b>PUNTOS VISITA</b></td>
+            <td><b>GPIO 2</b></td>
+            <td><b>+1</b> Punto Visita (0..99)</td>
+            <td><b>Toque:</b> <b style="color:#c00">−1</b> Punto · <b>Mantener >1.5s:</b> Cambia Color Visita</td>
+          </tr>
+          <tr>
+            <td><b>PERÍODO</b></td>
+            <td><b>GPIO 3</b></td>
+            <td><b>+1</b> Período (cicla 1..9)</td>
+            <td><b>Toque:</b> <b style="color:#c00">−1</b> Período · <b>Mantener >1.5s:</b> Cambia Deporte (Básquet ↔
+              Futsal)</td>
+          </tr>
+          <tr>
+            <td><b>FALTA LOCAL</b></td>
+            <td><b>GPIO 4</b></td>
+            <td><b>+1</b> Falta de equipo Local</td>
+            <td><b style="color:#c00">−1</b> Falta de equipo Local</td>
+          </tr>
+          <tr>
+            <td><b>FALTA VISITA</b></td>
+            <td><b>GPIO 5</b></td>
+            <td><b>+1</b> Falta de equipo Visita</td>
+            <td><b style="color:#c00">−1</b> Falta de equipo Visita</td>
+          </tr>
+          <tr>
+            <td><b>BOCINA</b></td>
+            <td><b>GPIO 6</b></td>
+            <td>Sirena manual (1,5 s de bocina)</td>
+            <td><b style="color:#0284c7">Test Dígitos 0..8</b> (recorre el tablero completo)</td>
+          </tr>
+          <tr>
+            <td><b>SHIFT / RETROCEDER</b></td>
+            <td><b>GPIO 7</b></td>
+            <td colspan="2"><b style="color:#c00">Tecla Modificadora Maestra:</b> mantené apretada esta tecla para
+              habilitar restas y funciones secundarias.</td>
+          </tr>
+        </table>
+      </div>
+
+      <div>
+        <h2>Ventajas del Sistema con ESP32-C3 SuperMini</h2>
+        <ul class="check">
+          <li><b>Tamaño ultra compacto y moderno:</b> Arquitectura RISC-V de alta eficiencia.</li>
+          <li><b>Antenas externas de 5 dBi (IPEX):</b> Cobertura garantizada en toda la cancha de punta a punta.</li>
+          <li><b>Cero integrados obsoletos:</b> Adaptación perfecta 3.3V ➔ 5.0V mediante LED buffer de alta velocidad.
+          </li>
+          <li><b>Color personalizable en cancha:</b> Coincide el marcador con las camisetas de los equipos.</li>
+          <li><b>Presets de tiempo inmediatos:</b> Seleccioná 5, 10, 12, 15, 20 o 25 minutos sin cables ni PC.</li>
+        </ul>
+        <div class="warn" style="margin-top:2mm;">
+          <b>Alimentación del control:</b> Conectar 5 V (USB tipo C / power bank o cargador de celular) al pin <b>5V</b>
+          y <b>G</b> del ESP32-C3 SuperMini.
+        </div>
+      </div>
+    </div>
+  </section>
+
+</body>
+
+</html>

@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Plano Esquemático y Circuito PCB - Controlador Tablero Deportivo ESP32-C3</title>
+<style>
+  @page { size: A4 landscape; margin: 8mm 10mm; }
+  * { box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: #090d16;
+    color: #f8fafc;
+    margin: 0;
+    padding: 16px;
+    font-size: 11px;
+    line-height: 1.4;
+  }
+
+  .no-print-bar {
+    max-width: 1280px;
+    margin: 0 auto 16px;
+    background: #131b2e;
+    border: 1px solid #1e293b;
+    border-radius: 10px;
+    padding: 12px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+  }
+  .no-print-bar h1 { margin: 0; font-size: 16px; color: #38bdf8; display: flex; align-items: center; gap: 8px; }
+  .btn-print {
+    background: #0284c7;
+    color: #fff;
+    border: none;
+    padding: 8px 18px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .btn-print:hover { background: #0369a1; }
+
+  .sheet {
+    max-width: 1280px;
+    margin: 0 auto 24px;
+    background: #0d1322;
+    border: 2px solid #1e293b;
+    border-radius: 12px;
+    padding: 18px 24px;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.6);
+  }
+  .sheet-title {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 2px solid #0284c7;
+    padding-bottom: 8px;
+    margin-bottom: 14px;
+  }
+  .sheet-title h2 { margin: 0; font-size: 16px; color: #f8fafc; text-transform: uppercase; letter-spacing: 0.5px; }
+  .sheet-badge {
+    background: #0284c7;
+    color: #fff;
+    padding: 3px 10px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: bold;
+  }
+
+  .svg-box {
+    background: #060911;
+    border: 1px solid #1e293b;
+    border-radius: 8px;
+    padding: 10px;
+    overflow-x: auto;
+    margin-bottom: 14px;
+  }
+  svg text { font-family: -apple-system, BlinkMacSystemFont, "Consolas", sans-serif; }
+
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; }
+
+  .card {
+    background: #111827;
+    border: 1px solid #1f2937;
+    border-radius: 8px;
+    padding: 12px 14px;
+  }
+  .card h3 {
+    margin: 0 0 8px;
+    font-size: 12px;
+    color: #38bdf8;
+    border-bottom: 1px solid #1f2937;
+    padding-bottom: 4px;
+  }
+
+  table { width: 100%; border-collapse: collapse; font-size: 10.5px; }
+  th, td { border: 1px solid #1f2937; padding: 5px 8px; text-align: left; }
+  th { background: #0f172a; color: #38bdf8; font-weight: bold; }
+  tr:nth-child(even) { background: rgba(255,255,255,0.02); }
+
+  .alert {
+    background: rgba(14, 165, 233, 0.1);
+    border-left: 4px solid #0284c7;
+    padding: 8px 12px;
+    border-radius: 0 6px 6px 0;
+    margin-top: 10px;
+    font-size: 10.5px;
+  }
+  .alert-warn {
+    background: rgba(245, 158, 11, 0.1);
+    border-left: 4px solid #f59e0b;
+    padding: 8px 12px;
+    border-radius: 0 6px 6px 0;
+    margin-top: 10px;
+    font-size: 10.5px;
+    color: #fbbf24;
+  }
+
+  @media print {
+    body { background: #fff; color: #000; padding: 0; }
+    .no-print-bar { display: none; }
+    .sheet {
+      background: #fff; color: #000; border: 1px solid #cbd5e1;
+      box-shadow: none; padding: 0; margin-bottom: 0; page-break-after: always;
+    }
+    .sheet-title h2 { color: #0284c7; }
+    .svg-box { background: #fff; border: 1px solid #cbd5e1; }
+    th { background: #f1f5f9; color: #000; }
+    th, td { border-color: #cbd5e1; }
+    .card { background: #f8fafc; border-color: #cbd5e1; color: #000; }
+    .card h3 { color: #0284c7; border-color: #cbd5e1; }
+    .alert { background: #f0f9ff; color: #0369a1; border-color: #0284c7; }
+    .alert-warn { background: #fffbeb; color: #92400e; border-color: #f59e0b; }
+  }
+</style>
+</head>
+<body>
+
+<div class="no-print-bar">
+  <div>
+    <h1>📐 PLANO DE INGENIERÍA: PLACA CONTROLADORA TABLERO DEPORTIVO</h1>
+    <span style="color:#94a3b8; font-size:12px;">ESP32-C3 SuperMini · Diodo 1N4007 + LED Buffer Sacrificado · Filtros de Ruido · Relé Sirena</span>
+  </div>
+  <button class="btn-print" onclick="window.print()">🖨️ Imprimir Planos en A4</button>
+</div>
+
+<!-- ==================================================================================== -->
+<!-- HOJA 1: DIAGRAMA ESQUEMÁTICO COMPLETO (SCHEMATIC)                                   -->
+<!-- ==================================================================================== -->
+<div class="sheet">
+  <div class="sheet-title">
+    <h2>Hoja 1/2 · Esquema Electrónico con Diodo 1N4007 y Píxel Buffer Sacrificado</h2>
+    <span class="sheet-badge">Revisión 4.5 · Hardware Disponible Sin Chips Especiales</span>
+  </div>
+
+  <div class="svg-box">
+    <svg viewBox="0 0 1200 560" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <filter id="shadow" x="-5%" y="-5%" width="110%" height="110%">
+          <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#000" flood-opacity="0.5"/>
+        </filter>
+      </defs>
+
+      <!-- FONDO MALLADO DE INGENIERÍA -->
+      <rect x="0" y="0" width="1200" height="560" fill="#080c16"/>
+
+      <!-- ================= 1. ENTRADA DE FUENTE 5V / BORNERA J1 ================= -->
+      <g id="modulo-fuente">
+        <rect x="30" y="80" width="130" height="150" rx="6" fill="#131b2e" stroke="#3b82f6" stroke-width="2" filter="url(#shadow)"/>
+        <text x="95" y="105" fill="#38bdf8" font-size="12" font-weight="bold" text-anchor="middle">BORNERA J1</text>
+        <text x="95" y="122" fill="#94a3b8" font-size="9.5" text-anchor="middle">Entrada Fuente 5V</text>
+
+        <!-- Bornes -->
+        <circle cx="50" cy="155" r="7" fill="#dc2626"/>
+        <text x="65" y="159" fill="#f87171" font-size="11" font-weight="bold">+5V (IN)</text>
+
+        <circle cx="50" cy="195" r="7" fill="#1e293b" stroke="#38bdf8" stroke-width="2"/>
+        <text x="65" y="199" fill="#38bdf8" font-size="11" font-weight="bold">GND (IN)</text>
+      </g>
+
+      <!-- ================= BANCO DE FILTRADO (C1 Y C2) ================= -->
+      <g id="filtros-ruido">
+        <line x1="50" y1="155" x2="230" y2="155" stroke="#ef4444" stroke-width="4"/>
+        <line x1="50" y1="195" x2="230" y2="195" stroke="#0284c7" stroke-width="4"/>
+
+        <!-- C1: 1000 uF Electrolítico -->
+        <rect x="180" y="140" width="22" height="70" rx="3" fill="#1e293b" stroke="#f59e0b" stroke-width="1.8"/>
+        <line x1="191" y1="130" x2="191" y2="140" stroke="#ef4444" stroke-width="2.5"/>
+        <circle cx="191" y1="130" r="3.5" fill="#ef4444"/>
+        <line x1="191" y1="210" x2="191" y2="220" stroke="#0284c7" stroke-width="2.5"/>
+        <circle cx="191" y1="220" r="3.5" fill="#0284c7"/>
+        <text x="191" y="123" fill="#f59e0b" font-size="9.5" font-weight="bold" text-anchor="middle">C1</text>
+        <text x="191" y="235" fill="#f59e0b" font-size="9" text-anchor="middle">1000 µF</text>
+        <text x="191" y="246" fill="#94a3b8" font-size="8" text-anchor="middle">16V / 25V</text>
+
+        <!-- C2: 100 nF Cerámico -->
+        <rect x="230" y="145" width="14" height="60" rx="2" fill="#d97706" stroke="#fbbf24" stroke-width="1.2"/>
+        <line x1="237" y1="135" x2="237" y2="145" stroke="#ef4444" stroke-width="2"/>
+        <circle cx="237" y1="135" r="3" fill="#ef4444"/>
+        <line x1="237" y1="205" x2="237" y2="215" stroke="#0284c7" stroke-width="2"/>
+        <circle cx="237" y1="215" r="3" fill="#0284c7"/>
+        <text x="237" y="128" fill="#fbbf24" font-size="9" font-weight="bold" text-anchor="middle">C2</text>
+        <text x="237" y="230" fill="#fbbf24" font-size="8.5" text-anchor="middle">100 nF</text>
+        <text x="237" y="241" fill="#94a3b8" font-size="8" text-anchor="middle">(104)</text>
+
+        <line x1="191" y1="130" x2="237" y2="135" stroke="#ef4444" stroke-width="3"/>
+        <line x1="191" y1="220" x2="237" y2="215" stroke="#0284c7" stroke-width="3"/>
+      </g>
+
+      <!-- ================= 2. ESP32-C3 SUPERMINI ================= -->
+      <g id="modulo-esp32">
+        <rect x="330" y="60" width="220" height="420" rx="8" fill="#0f172a" stroke="#10b981" stroke-width="2" filter="url(#shadow)"/>
+        <rect x="330" y="60" width="220" height="32" rx="8" fill="#065f46"/>
+        <text x="440" y="81" fill="#ecfdf5" font-size="12" font-weight="bold" text-anchor="middle">ESP32-C3 SuperMini</text>
+        <text x="440" y="104" fill="#6ee7b7" font-size="8.5" text-anchor="middle">Wi-Fi ESP-NOW + OTA: T-B-O-T-A</text>
+
+        <!-- Pines Lado Izquierdo (1 a 8) -->
+        <g font-size="9" fill="#94a3b8">
+          <circle cx="342" cy="140" r="4.5" fill="#3b82f6"/><text x="354" y="144">GPIO 0 (Libre)</text>
+          <circle cx="342" cy="175" r="4.5" fill="#3b82f6"/><text x="354" y="179">GPIO 1 (Libre)</text>
+          <circle cx="342" cy="210" r="4.5" fill="#3b82f6"/><text x="354" y="214">GPIO 2 (Libre)</text>
+          <circle cx="342" cy="245" r="4.5" fill="#3b82f6"/><text x="354" y="249">GPIO 3 (Libre)</text>
+          
+          <!-- GPIO 4: SALIDA DATOS WS2811 -->
+          <circle cx="342" cy="290" r="6" fill="#10b981" stroke="#fff" stroke-width="1.5"/>
+          <text x="356" y="294" fill="#34d399" font-weight="bold" font-size="10.5">GPIO 4 (DATA 3.3V)</text>
+
+          <!-- GPIO 5: SALIDA RELÉ SIRENA -->
+          <circle cx="342" cy="335" r="6" fill="#a855f7" stroke="#fff" stroke-width="1.5"/>
+          <text x="356" y="339" fill="#c084fc" font-weight="bold" font-size="10.5">GPIO 5 (RELÉ SIRENA)</text>
+
+          <!-- GPIO 6: SALIDA BUZZER -->
+          <circle cx="342" cy="380" r="6" fill="#eab308" stroke="#fff" stroke-width="1.5"/>
+          <text x="356" y="384" fill="#fde047" font-weight="bold" font-size="10.5">GPIO 6 (BUZZER)</text>
+
+          <circle cx="342" cy="425" r="4.5" fill="#3b82f6"/><text x="354" y="429">GPIO 7 (Libre)</text>
+        </g>
+
+        <!-- Pines Lado Derecho (16 a 9) -->
+        <g font-size="9" fill="#94a3b8" text-anchor="end">
+          <!-- 5V (VIN) -->
+          <circle cx="538" cy="140" r="6" fill="#ef4444" stroke="#fff" stroke-width="1.5"/>
+          <text x="526" y="144" fill="#f87171" font-weight="bold" font-size="10.5">5V / VIN (Entrada 5V)</text>
+
+          <!-- GND -->
+          <circle cx="538" cy="180" r="6" fill="#0284c7" stroke="#fff" stroke-width="1.5"/>
+          <text x="526" y="184" fill="#38bdf8" font-weight="bold" font-size="10.5">GND (Masa Común)</text>
+
+          <!-- 3V3 -->
+          <circle cx="538" cy="220" r="4.5" fill="#f59e0b"/><text x="526" y="224">3V3 (Salida LDO)</text>
+
+          <circle cx="538" cy="260" r="4.5" fill="#3b82f6"/><text x="526" y="264">GPIO 8 (LED Onboard)</text>
+          <circle cx="538" cy="300" r="4.5" fill="#3b82f6"/><text x="526" y="304">GPIO 9 (Boot Btn)</text>
+          <circle cx="538" cy="340" r="4.5" fill="#3b82f6"/><text x="526" y="344">GPIO 10 (Libre)</text>
+          <circle cx="538" cy="380" r="4.5" fill="#3b82f6"/><text x="526" y="384">GPIO 20 (RX)</text>
+          <circle cx="538" cy="420" r="4.5" fill="#3b82f6"/><text x="526" y="424">GPIO 21 (TX)</text>
+        </g>
+
+        <rect x="420" y="450" width="40" height="20" rx="3" fill="#1e293b" stroke="#e2e8f0" stroke-width="1"/>
+        <text x="440" y="463" fill="#cbd5e1" font-size="7.5" text-anchor="middle">IPEX ANT</text>
+      </g>
+
+      <!-- Cableado de alimentación del ESP32 -->
+      <polyline points="230,155 280,155 280,40 575,40 575,140 538,140" fill="none" stroke="#ef4444" stroke-width="3"/>
+      <circle cx="280" cy="155" r="3.5" fill="#ef4444"/>
+
+      <polyline points="230,195 295,195 295,510 575,510 575,180 538,180" fill="none" stroke="#0284c7" stroke-width="3"/>
+      <circle cx="295" cy="195" r="3.5" fill="#0284c7"/>
+
+      <!-- ================= 3. ETAPA LEVEL SHIFTER: DIODO 1N4007 + PÍXEL BUFFER ================= -->
+      <g id="modulo-buffer-diodo">
+        <rect x="630" y="140" width="230" height="260" rx="8" fill="#1e1b4b" stroke="#ca8a04" stroke-width="2" filter="url(#shadow)"/>
+        <rect x="630" y="140" width="230" height="28" rx="8" fill="#ca8a04"/>
+        <text x="745" y="159" fill="#ffffff" font-size="11" font-weight="bold" text-anchor="middle">ADAPTADOR DIODO + PÍXEL BUFFER</text>
+        <text x="745" y="184" fill="#fef08a" font-size="8.5" text-anchor="middle">Convierte 3.3V ➔ 5.0V Sin Chips Integrados</text>
+
+        <!-- D1: Diodo 1N4007 -->
+        <g id="diodo-1n4007">
+          <text x="690" y="210" fill="#fde047" font-size="9" font-weight="bold">D1: Diodo 1N4007</text>
+          <!-- Cuerpo cilíndrico del diodo -->
+          <rect x="660" y="218" width="55" height="18" rx="3" fill="#0f172a" stroke="#475569" stroke-width="1.5"/>
+          <!-- Franja blanca cátodo -->
+          <rect x="702" y="218" width="8" height="18" fill="#e2e8f0"/>
+          <text x="682" y="231" fill="#fff" font-size="7.5" font-weight="bold">1N4007</text>
+          <!-- Terminales -->
+          <line x1="640" y1="227" x2="660" y2="227" stroke="#ef4444" stroke-width="2.5"/>
+          <line x1="715" y1="227" x2="745" y2="227" stroke="#ea580c" stroke-width="2.5"/>
+          <text x="643" y="222" fill="#ef4444" font-size="7.5">Ánodo (+5V)</text>
+          <text x="720" y="222" fill="#ea580c" font-size="7.5">Cátodo (+4.4V)</text>
+        </g>
+
+        <!-- Píxel WS2811 / WS2812 en placa (LED 0 sacrificado) -->
+        <g id="pixel-sacrificado">
+          <rect x="660" y="260" width="170" height="120" rx="6" fill="#131b2e" stroke="#059669" stroke-width="1.8"/>
+          <text x="745" y="278" fill="#34d399" font-size="10" font-weight="bold" text-anchor="middle">PÍXEL BUFFER (LED 0)</text>
+          <text x="745" y="292" fill="#94a3b8" font-size="8" text-anchor="middle">1 Píxel de tira WS2811 suelto en placa</text>
+
+          <!-- Bornes del píxel -->
+          <!-- VCC (+4.4V desde diodo) -->
+          <circle cx="675" cy="315" r="5" fill="#ea580c"/>
+          <text x="686" y="319" fill="#fb923c" font-size="9" font-weight="bold">+VCC (4.4V)</text>
+
+          <!-- GND -->
+          <circle cx="675" cy="355" r="5" fill="#0284c7"/>
+          <text x="686" y="359" fill="#38bdf8" font-size="9" font-weight="bold">GND (Masa)</text>
+
+          <!-- DI (Entrada datos desde GPIO 4) -->
+          <circle cx="675" cy="335" r="5" fill="#10b981"/>
+          <text x="686" y="339" fill="#34d399" font-size="9" font-weight="bold">DI (Datos 3.3V)</text>
+
+          <!-- DO (Salida datos 5V pura) -->
+          <circle cx="815" cy="335" r="5" fill="#10b981"/>
+          <text x="805" y="339" fill="#34d399" font-size="9" font-weight="bold" text-anchor="end">DO (5V)</text>
+        </g>
+      </g>
+
+      <!-- Cableado hacia el Diodo y el Píxel Buffer -->
+      <!-- +5V al ánodo del diodo -->
+      <polyline points="575,40 640,40 640,227" fill="none" stroke="#ef4444" stroke-width="3"/>
+      <circle cx="640" cy="40" r="3.5" fill="#ef4444"/>
+
+      <!-- Cátodo del diodo a VCC del píxel (+4.4V) -->
+      <polyline points="745,227 745,245 650,245 650,315 675,315" fill="none" stroke="#ea580c" stroke-width="2.5"/>
+
+      <!-- GPIO 4 (3.3V) a DI del píxel buffer -->
+      <polyline points="342,290 310,290 310,335 675,335" fill="none" stroke="#10b981" stroke-width="2.5"/>
+      <text x="315" y="328" fill="#34d399" font-size="8.5" font-weight="bold">3.3V Data</text>
+
+      <!-- GND al píxel buffer -->
+      <polyline points="575,510 650,510 650,355 675,355" fill="none" stroke="#0284c7" stroke-width="3"/>
+      <circle cx="650" cy="510" r="3.5" fill="#0284c7"/>
+
+      <!-- ================= RESISTENCIA SERIE Y BORNERA TIRA J2 ================= -->
+      <g id="salida-tira-led">
+        <!-- R2: Resistencia Amortiguadora 330 Ω en serie desde DO -->
+        <line x1="815" y1="335" x2="890" y2="335" stroke="#10b981" stroke-width="2.5"/>
+        <rect x="890" y="326" width="46" height="18" rx="2" fill="#1e293b" stroke="#10b981" stroke-width="1.8"/>
+        <text x="913" y="318" fill="#34d399" font-size="9" font-weight="bold" text-anchor="middle">R2: 330 Ω</text>
+        <text x="913" y="356" fill="#94a3b8" font-size="7.5" text-anchor="middle">Anti-rebote</text>
+        <line x1="936" y1="335" x2="1040" y2="335" stroke="#10b981" stroke-width="3"/>
+
+        <!-- Bornera J2 -->
+        <rect x="1040" y="240" width="130" height="150" rx="6" fill="#131b2e" stroke="#10b981" stroke-width="2" filter="url(#shadow)"/>
+        <text x="1105" y="265" fill="#34d399" font-size="11" font-weight="bold" text-anchor="middle">BORNERA J2</text>
+        <text x="1105" y="280" fill="#94a3b8" font-size="8.5" text-anchor="middle">Hacia Tablero (LEDs 1..239)</text>
+
+        <!-- Pin 1: +5V (Directo de fuente) -->
+        <circle cx="1060" cy="305" r="6" fill="#ef4444"/>
+        <text x="1075" y="309" fill="#f87171" font-size="10" font-weight="bold">+5V (Rojo)</text>
+
+        <!-- Pin 2: DATA (5V regenerados desde DO) -->
+        <circle cx="1060" cy="335" r="6" fill="#10b981"/>
+        <text x="1075" y="339" fill="#34d399" font-size="10" font-weight="bold">DATA (Verde)</text>
+
+        <!-- Pin 3: GND (Masa) -->
+        <circle cx="1060" cy="365" r="6" fill="#0284c7"/>
+        <text x="1075" y="369" fill="#38bdf8" font-size="10" font-weight="bold">GND (Blanco)</text>
+      </g>
+
+      <!-- +5V directo a Bornera J2 Pin 1 -->
+      <polyline points="640,40 1060,40 1060,305" fill="none" stroke="#ef4444" stroke-width="3"/>
+      <circle cx="1060" cy="40" r="3.5" fill="#ef4444"/>
+
+      <!-- GND a Bornera J2 Pin 3 -->
+      <polyline points="650,510 1060,510 1060,365" fill="none" stroke="#0284c7" stroke-width="3"/>
+      <circle cx="1060" cy="510" r="3.5" fill="#0284c7"/>
+
+      <!-- ================= 4. SALIDA RELÉ SIRENA 12V (BORNERA J3) ================= -->
+      <g id="bornera-rele">
+        <rect x="1040" y="415" width="130" height="130" rx="6" fill="#131b2e" stroke="#a855f7" stroke-width="2" filter="url(#shadow)"/>
+        <text x="1105" y="438" fill="#c084fc" font-size="11" font-weight="bold" text-anchor="middle">BORNERA J3</text>
+        <text x="1105" y="452" fill="#94a3b8" font-size="8.5" text-anchor="middle">Hacia Módulo Relé 5V</text>
+
+        <!-- VCC -->
+        <circle cx="1060" cy="475" r="5" fill="#ef4444"/>
+        <text x="1075" y="479" fill="#f87171" font-size="9.5">VCC (+5V)</text>
+
+        <!-- IN (GPIO 5) -->
+        <circle cx="1060" cy="505" r="5" fill="#a855f7"/>
+        <text x="1075" y="509" fill="#c084fc" font-size="9.5" font-weight="bold">IN (GPIO 5)</text>
+
+        <!-- GND -->
+        <circle cx="1060" cy="530" r="5" fill="#0284c7"/>
+        <text x="1075" y="534" fill="#38bdf8" font-size="9.5">GND</text>
+      </g>
+
+      <!-- Cableado señal Relé desde GPIO 5 a Bornera J3 Pin 2 -->
+      <polyline points="342,335 290,335 290,505 1060,505" fill="none" stroke="#a855f7" stroke-width="2.5"/>
+      <line x1="1060" y1="40" x2="1060" y2="475" stroke="#ef4444" stroke-width="2" stroke-dasharray="4,3"/>
+      <line x1="1060" y1="510" x2="1060" y2="530" stroke="#0284c7" stroke-width="2" stroke-dasharray="4,3"/>
+
+      <!-- ================= 5. BUZZER PIEZOELÉCTRICO ONBOARD ================= -->
+      <g id="buzzer-circuito">
+        <circle cx="210" cy="380" r="24" fill="#1e293b" stroke="#eab308" stroke-width="2"/>
+        <text x="210" y="384" fill="#fde047" font-size="9" font-weight="bold" text-anchor="middle">BUZZER</text>
+        <text x="210" y="396" fill="#94a3b8" font-size="7.5" text-anchor="middle">Piezo 5V</text>
+        <line x1="342" y1="380" x2="234" y2="380" stroke="#eab308" stroke-width="2.5"/>
+        <line x1="186" y1="380" x2="150" y2="380" stroke="#0284c7" stroke-width="2"/>
+        <line x1="150" y1="380" x2="150" y2="195" stroke="#0284c7" stroke-width="2"/>
+      </g>
+    </svg>
+  </div>
+
+  <div class="grid-3">
+    <div class="card">
+      <h3>🔴 1. El Truco del Diodo 1N4007</h3>
+      <p>Un diodo común 1N4007 colocado en serie con la alimentación del <b>Píxel Buffer (LED 0)</b> produce una caída de tensión de <b>~0.7V</b>:</p>
+      <ul>
+        <li>Alimentación resultante del píxel buffer: <b>5.0V − 0.7V = 4.3V a 4.4V</b>.</li>
+        <li>Con VCC en 4.3V, el umbral de entrada lógica requerida (0.7 × VCC) baja a <b>~3.0V</b>.</li>
+        <li>Los <b>3.3V del GPIO 4</b> del ESP32-C3 entran 100% holgados y sin errores.</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h3>🟢 2. Regeneración Activa a 5.0V</h3>
+      <p>La salida <b>DO</b> del Píxel Buffer genera un tren de pulsos cuadrados puros a <b>5.0V</b> con impedancia baja:</p>
+      <ul>
+        <li>La señal regenerada viaja con fuerza y sin atenuación a los 239 LEDs del tablero.</li>
+        <li><b>R2 (330 Ω):</b> En serie con la salida DO amortigua rebotes y reflexiones en el cable.</li>
+        <li><b>Firmware sincronizado:</b> <code>BUFFER_LED_COUNT = 1</code> mantiene el LED 0 apagado en negro, arrancando el tablero en el LED 1.</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h3>🟣 3. Filtro C1 (1000 µF) y GND</h3>
+      <ul>
+        <li><b>C1 (1000 µF / 25V):</b> Conectado directo en la bornera de 5V y GND. Absorbe los picos de conmutación de los 239 LEDs.</li>
+        <li><b>C2 (100 nF cerámico):</b> En paralelo con C1 para filtrar ruidos de radiofrecuencia (100 kHz a 10 MHz).</li>
+        <li><b>Masa Común Unificada:</b> GND de la fuente, del ESP32-C3 y del tablero unidos sólidamente.</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- ==================================================================================== -->
+<!-- HOJA 2: LISTA DE COMPONENTES (BOM) Y GUÍA DE ARMADO DE PLACA                        -->
+<!-- ==================================================================================== -->
+<div class="sheet">
+  <div class="sheet-title">
+    <h2>Hoja 2/2 · Lista de Materiales (BOM) y Conexiones Prácticas</h2>
+    <span class="sheet-badge">Sin Circuitos Integrados Especiales</span>
+  </div>
+
+  <div class="grid-2">
+    <div>
+      <h3 style="color:#38bdf8; margin:0 0 8px; font-size:13px;">📋 Lista de Materiales para Armar la Placa (BOM)</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Ref.</th>
+            <th>Componente / Valor</th>
+            <th>Encapsulado</th>
+            <th>Función en el circuito</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><b>U1</b></td>
+            <td><b>ESP32-C3 SuperMini</b> (con conector IPEX)</td>
+            <td>Módulo 16 pines</td>
+            <td>Microcontrolador Wi-Fi / ESP-NOW + Servidor OTA <code>T-B-O-T-A</code></td>
+          </tr>
+          <tr>
+            <td><b>D1</b></td>
+            <td><b>Diodo 1N4007</b> (o 1N4001..4004)</td>
+            <td>DO-41 (Axial negro)</td>
+            <td>Baja 0.7V para que el Píxel Buffer acepte los 3.3V del GPIO 4</td>
+          </tr>
+          <tr>
+            <td><b>Píxel 0</b></td>
+            <td><b>1 Píxel WS2811 / WS2812 de 5V</b></td>
+            <td>Recorte de tira o bullet 12mm</td>
+            <td><b>Píxel Buffer de sacrificio:</b> regenera los datos a 5.0V puros</td>
+          </tr>
+          <tr>
+            <td><b>C1</b></td>
+            <td><b>1000 µF / 16V o 25V</b></td>
+            <td>Electrolítico Radial</td>
+            <td>Filtro principal contra caídas de tensión y picos de consumo</td>
+          </tr>
+          <tr>
+            <td><b>C2</b></td>
+            <td><b>100 nF (código 104)</b></td>
+            <td>Cerámico multicapa</td>
+            <td>Filtro de desacoplo de alta frecuencia</td>
+          </tr>
+          <tr>
+            <td><b>R2</b></td>
+            <td><b>330 Ω – 1/4W (naranja-naranja-marrón)</b></td>
+            <td>Axial Through-Hole</td>
+            <td>Amortiguadora anti-rebote serie en el cable DIN hacia el tablero</td>
+          </tr>
+          <tr>
+            <td><b>BZ1</b></td>
+            <td><b>Buzzer pasivo piezoeléctrico 5V</b></td>
+            <td>Through-Hole 12mm</td>
+            <td>Avisos acústicos en GPIO 6 (toques de tecla y faltas colectivas)</td>
+          </tr>
+          <tr>
+            <td><b>J1</b></td>
+            <td><b>Bornera tornillo 2 pines (5.08mm)</b></td>
+            <td>Through-Hole</td>
+            <td>Entrada de Fuente 5V y GND</td>
+          </tr>
+          <tr>
+            <td><b>J2</b></td>
+            <td><b>Bornera tornillo 3 pines (5.08mm)</b></td>
+            <td>Through-Hole</td>
+            <td>Salida a Tablero (+5V, DIN y GND)</td>
+          </tr>
+          <tr>
+            <td><b>J3</b></td>
+            <td><b>Bornera tornillo 3 pines (5.08mm)</b></td>
+            <td>Through-Hole</td>
+            <td>Salida a Módulo Relé Sirena (+5V, GPIO 5 y GND)</td>
+          </tr>
+          <tr>
+            <td><b>Zócalo</b></td>
+            <td><b>Tiras hembra 8 pines (paso 2.54mm)</b></td>
+            <td>2 tiras de 8 pines</td>
+            <td>Permite enchufar/desenchufar el ESP32-C3 SuperMini</td>
+          </tr>
+          <tr>
+            <td><b>Placa</b></td>
+            <td><b>Placa perforada tipo pertinax/fibra</b></td>
+            <td>50 × 70 mm aprox.</td>
+            <td>Sustrato de montaje</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="alert">
+        <b>💡 Ventaja de esta solución:</b> No necesitás ningún integrado especial ni difícil de conseguir. Todos los componentes (diodo 1N4007, capacitor 1000 µF, resistencia 330 Ω y un pedacito de tira WS2811 de 1 solo píxel) se consiguen en cualquier casa de electrónica o taller.
+      </div>
+    </div>
+
+    <div>
+      <h3 style="color:#38bdf8; margin:0 0 8px; font-size:13px;">🛠️ Cómo Conectar el Píxel Buffer (Paso a Paso)</h3>
+      
+      <div class="card" style="margin-bottom:10px;">
+        <h3 style="color:#f59e0b;">1. Las 4 patas del Píxel Buffer en la Placa</h3>
+        <ol>
+          <li><b>+5V de entrada al diodo:</b> Soldar el ánodo del 1N4007 al riel de +5V de la fuente.</li>
+          <li><b>Cátodo (franja gris) a +VCC del píxel:</b> El cátodo del diodo va directo al positivo del píxel de sacrificio (+4.4V).</li>
+          <li><b>GND del píxel:</b> Va directo a la masa común (GND) del ESP32 y de la fuente.</li>
+          <li><b>Entrada DI:</b> Cable directo desde <b>GPIO 4</b> del ESP32-C3 al pad <code>DI</code> (Data In) del píxel.</li>
+          <li><b>Salida DO:</b> Desde el pad <code>DO</code> (Data Out) del píxel ponés la resistencia <b>R2 (330 Ω)</b> y de ahí a la bornera <code>J2 Pin 2</code> que sale hacia el tablero.</li>
+        </ol>
+      </div>
+
+      <div class="card" style="margin-bottom:10px;">
+        <h3 style="color:#34d399;">2. El LED de sacrificio permanece apagado</h3>
+        <p>El firmware tiene activado <code>BUFFER_LED_COUNT = 1</code>. Esto significa que:</p>
+        <ul>
+          <li>El LED soldado en la placa <b>siempre permanece apagado (color negro)</b>. Solo trabaja su chip interno como regenerador de señal.</li>
+          <li>El primer LED físico de tu tablero (Local Decena) recibe los datos correspondientes al LED 1, alineando exactamente los 239 LEDs.</li>
+        </ul>
+      </div>
+
+      <div class="alert-warn">
+        <b>⚠️ Sentido de datos del píxel:</b> Fijate bien en las flechitas impresas en el píxel de la tira (<code>➔</code>) o las letras <code>DI</code> (Data In) y <code>DO</code> (Data Out). El GPIO 4 entra por <b>DI</b> y sale hacia el tablero por <b>DO</b>.
+      </div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

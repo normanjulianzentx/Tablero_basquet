@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Plano Técnico de Montaje PCB 5x5 cm - Fondo Blanco para Impresión Láser</title>
+<style>
+  @page { size: A4 portrait; margin: 8mm; }
+  * { box-sizing: border-box; }
+  
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: #ffffff;
+    color: #0f172a;
+    margin: 0;
+    padding: 12px;
+    font-size: 12px;
+    line-height: 1.4;
+  }
+  
+  .container { max-width: 900px; margin: 0 auto; }
+  
+  /* Barra superior no imprimible */
+  .header-bar {
+    background: #f8fafc;
+    border: 2px solid #0f172a;
+    border-radius: 8px;
+    padding: 12px 18px;
+    margin-bottom: 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .header-bar h1 { margin: 0; font-size: 17px; color: #0f172a; }
+  .header-bar p { margin: 2px 0 0; color: #475569; font-size: 12px; }
+  
+  .btn-print {
+    background: #0f172a;
+    color: #ffffff;
+    border: none;
+    padding: 8px 18px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: bold;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .btn-print:hover { background: #334155; }
+
+  /* Tarjetas con estilo plano técnico sobre papel blanco */
+  .sheet {
+    background: #ffffff;
+    border: 1.5px solid #0f172a;
+    border-radius: 8px;
+    padding: 14px 18px;
+    margin-bottom: 16px;
+    page-break-inside: avoid;
+  }
+  
+  .sheet-title {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 2px solid #0f172a;
+    padding-bottom: 6px;
+    margin-bottom: 12px;
+  }
+  .sheet-title h2 { margin: 0; font-size: 14px; color: #0f172a; text-transform: uppercase; letter-spacing: 0.5px; }
+  .badge { border: 1.5px solid #0f172a; color: #0f172a; background: #f1f5f9; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: bold; }
+
+  .svg-box {
+    background: #ffffff;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    padding: 8px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+  svg text { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif; }
+
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  @media (max-width: 760px) { .grid-2 { grid-template-columns: 1fr; } }
+
+  table { width: 100%; border-collapse: collapse; font-size: 11px; margin-top: 6px; }
+  th, td { border: 1px solid #0f172a; padding: 5px 8px; text-align: left; }
+  th { background: #f1f5f9; color: #0f172a; font-weight: bold; }
+  tr:nth-child(even) { background: #fafafa; }
+
+  .alert-box {
+    background: #f8fafc;
+    border: 1.5px solid #0f172a;
+    border-left: 5px solid #0f172a;
+    padding: 8px 12px;
+    border-radius: 4px;
+    margin-top: 10px;
+    font-size: 11.5px;
+  }
+
+  .step-list { padding-left: 18px; margin: 4px 0 0; }
+  .step-list li { margin-bottom: 5px; }
+
+  /* Impresión A4 Láser Nítida y Ahorro de Tóner */
+  @media print {
+    body { background: #ffffff; color: #000000; padding: 0; }
+    .header-bar { display: none; }
+    .sheet { border: 1.5px solid #000000; margin-bottom: 12px; page-break-inside: avoid; }
+    .sheet-title { border-bottom: 2px solid #000000; }
+    th { background: #f1f5f9 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    th, td { border-color: #000000 !important; }
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <!-- BARRA DE ACCIÓN -->
+  <div class="header-bar">
+    <div>
+      <h1>📐 PLANO TÉCNICO APTO PARA IMPRESORA LÁSER (FONDO 100% BLANCO)</h1>
+      <p>Placa universal pre-perforada 5.0 × 5.0 cm (50 × 50 mm) · ESP32-C3 SuperMini + 1N4007 + Píxel Buffer + C1 1000 µF</p>
+    </div>
+    <button class="btn-print" onclick="window.print()">🖨️ Imprimir sin Fondo Oscuro</button>
+  </div>
+
+  <!-- HOJA 1: VISTA SUPERIOR (TOP VIEW - COMPONENTES) -->
+  <div class="sheet">
+    <div class="sheet-title">
+      <h2>1. Vista Superior (Top View) · Ubicación Física de Componentes</h2>
+      <span class="badge">Escala Milimétrica 50.0 × 50.0 mm</span>
+    </div>
+
+    <div class="svg-box">
+      <!-- SVG TOTALMENTE EN FONDO BLANCO SIN SOMBRAS NI FONDOS NEGROS -->
+      <svg viewBox="0 0 760 760" width="700" height="700" xmlns="http://www.w3.org/2000/svg">
+        
+        <!-- FONDO BLANCO PURO -->
+        <rect x="0" y="0" width="760" height="760" fill="#ffffff"/>
+
+        <!-- COTAS EXTERIORES (50.0 mm x 50.0 mm) -->
+        <g stroke="#0f172a" stroke-width="1.8">
+          <!-- Cota Superior Ancho -->
+          <line x1="80" y1="42" x2="680" y2="42"/>
+          <line x1="80" y1="32" x2="80" y2="52"/>
+          <line x1="680" y1="32" x2="680" y2="52"/>
+          <!-- Cota Izquierda Alto -->
+          <line x1="42" y1="80" x2="42" y2="680"/>
+          <line x1="32" y1="80" x2="52" y2="80"/>
+          <line x1="32" y1="680" x2="52" y2="680"/>
+        </g>
+        <text x="380" y="32" fill="#0f172a" font-size="14" font-weight="bold" text-anchor="middle">ANCHO TOTAL: 50.0 mm (5.0 cm)</text>
+        <text x="32" y="380" fill="#0f172a" font-size="14" font-weight="bold" text-anchor="middle" transform="rotate(-90 32 380)">ALTO TOTAL: 50.0 mm (5.0 cm)</text>
+
+        <!-- CONTORNO DE LA PLACA PERFORADA (50x50 mm) -->
+        <rect x="80" y="80" width="600" height="600" rx="10" fill="#ffffff" stroke="#0f172a" stroke-width="2.5"/>
+
+        <!-- 4 ORIFICIOS DE MONTAJE M3 EN LAS ESQUINAS (Separación 43.0 mm) -->
+        <g stroke="#0f172a" stroke-width="2" fill="#ffffff">
+          <circle cx="120" cy="120" r="16"/>
+          <circle cx="640" cy="120" r="16"/>
+          <circle cx="120" cy="640" r="16"/>
+          <circle cx="640" cy="640" r="16"/>
+        </g>
+        <text x="120" y="124" fill="#0f172a" font-size="10" font-weight="bold" text-anchor="middle">M3</text>
+        <text x="640" y="124" fill="#0f172a" font-size="10" font-weight="bold" text-anchor="middle">M3</text>
+        <text x="120" y="644" fill="#0f172a" font-size="10" font-weight="bold" text-anchor="middle">M3</text>
+        <text x="640" y="644" fill="#0f172a" font-size="10" font-weight="bold" text-anchor="middle">M3</text>
+
+        <!-- MALLA DE PADS PRE-PERFORADOS (PUNTOS CLAROS DE REFERENCIA) -->
+        <!-- Generación de la grilla de orificios (18x18 pads a paso 2.54mm) -->
+        <!-- Columnas A..R (x = 138 a 622), Filas 1..18 (y = 138 a 622) -->
+        <g stroke="#94a3b8" stroke-width="0.8" fill="#ffffff">
+          <!-- Letras de Columnas Arriba A..R -->
+          <g font-size="11" fill="#0f172a" font-weight="bold" text-anchor="middle" stroke="none">
+            <text x="138" y="102">A</text><text x="166" y="102">B</text><text x="195" y="102">C</text>
+            <text x="223" y="102">D</text><text x="252" y="102">E</text><text x="280" y="102">F</text>
+            <text x="309" y="102">G</text><text x="337" y="102">H</text><text x="366" y="102">I</text>
+            <text x="394" y="102">J</text><text x="423" y="102">K</text><text x="451" y="102">L</text>
+            <text x="480" y="102">M</text><text x="508" y="102">N</text><text x="537" y="102">O</text>
+            <text x="565" y="102">P</text><text x="594" y="102">Q</text><text x="622" y="102">R</text>
+          </g>
+          <!-- Números de Filas a la Izquierda 1..18 -->
+          <g font-size="11" fill="#0f172a" font-weight="bold" text-anchor="middle" stroke="none">
+            <text x="102" y="142">1</text><text x="102" y="170">2</text><text x="102" y="199">3</text>
+            <text x="102" y="227">4</text><text x="102" y="256">5</text><text x="102" y="284">6</text>
+            <text x="102" y="313">7</text><text x="102" y="341">8</text><text x="102" y="370">9</text>
+            <text x="102" y="398">10</text><text x="102" y="427">11</text><text x="102" y="455">12</text>
+            <text x="102" y="484">13</text><text x="102" y="512">14</text><text x="102" y="541">15</text>
+            <text x="102" y="569">16</text><text x="102" y="598">17</text><text x="102" y="626">18</text>
+          </g>
+        </g>
+
+        <!-- DIBUJO DE PADS BASE (CIRCULITOS BLANCOS CON BORDE GRIS FINO) -->
+        <!-- Fila 1 a 18 en Columnas A a R -->
+        <g stroke="#cbd5e1" stroke-width="1" fill="#f8fafc">
+          <!-- Dibujamos filas de prueba para visualizar el mallado -->
+          <!-- Líneas de cuadrícula muy finas para guiar la vista sin gastar tóner -->
+          <line x1="138" y1="138" x2="622" y2="138" stroke="#e2e8f0" stroke-width="0.8"/>
+          <line x1="138" y1="170" x2="622" y2="170" stroke="#e2e8f0" stroke-width="0.8"/>
+          <line x1="138" y1="199" x2="622" y2="199" stroke="#e2e8f0" stroke-width="0.8"/>
+          <line x1="138" y1="227" x2="622" y2="227" stroke="#e2e8f0" stroke-width="0.8"/>
+          <line x1="138" y1="256" x2="622" y2="256" stroke="#e2e8f0" stroke-width="0.8"/>
+          <line x1="138" y1="284" x2="622" y2="284" stroke="#e2e8f0" stroke-width="0.8"/>
+          <line x1="138" y1="313" x2="622" y2="313" stroke="#e2e8f0" stroke-width="0.8"/>
+          <line x1="138" y1="341" x2="622" y2="341" stroke="#e2e8f0" stroke-width="0.8"/>
+          <line x1="138" y1="370" x2="622" y2="370" stroke="#e2e8f0" stroke-width="0.8"/>
+          <line x1="138" y1="398" x2="622" y2="398" stroke="#e2e8f0" stroke-width="0.8"/>
+          <line x1="138" y1="427" x2="622" y2="427" stroke="#e2e8f0" stroke-width="0.8"/>
+          <line x1="138" y1="455" x2="622" y2="455" stroke="#e2e8f0" stroke-width="0.8"/>
+          <line x1="138" y1="484" x2="622" y2="484" stroke="#e2e8f0" stroke-width="0.8"/>
+          <line x1="138" y1="512" x2="622" y2="512" stroke="#e2e8f0" stroke-width="0.8"/>
+          <line x1="138" y1="541" x2="622" y2="541" stroke="#e2e8f0" stroke-width="0.8"/>
+          <line x1="138" y1="569" x2="622" y2="569" stroke="#e2e8f0" stroke-width="0.8"/>
+          <line x1="138" y1="598" x2="622" y2="598" stroke="#e2e8f0" stroke-width="0.8"/>
+          <line x1="138" y1="626" x2="622" y2="626" stroke="#e2e8f0" stroke-width="0.8"/>
+        </g>
+
+        <!-- ================= COMPONENTES DIBUJADOS EN LÍNEAS NEGRAS Y FONDOS BLANCOS ================= -->
+
+        <!-- 1. BORNERA J1: ENTRADA 5V (B2 y B4) -->
+        <g id="j1-laser">
+          <rect x="146" y="152" width="40" height="92" rx="4" fill="#ffffff" stroke="#0f172a" stroke-width="2"/>
+          <circle cx="166" cy="170" r="7" fill="#ffffff" stroke="#0f172a" stroke-width="2"/>
+          <circle cx="166" cy="227" r="7" fill="#ffffff" stroke="#0f172a" stroke-width="2"/>
+          <text x="166" y="138" fill="#0f172a" font-size="11" font-weight="bold" text-anchor="middle">J1: 5V IN</text>
+          <text x="194" y="174" fill="#0f172a" font-size="10" font-weight="bold">+5V (B2)</text>
+          <text x="194" y="231" fill="#0f172a" font-size="10" font-weight="bold">GND (B4)</text>
+        </g>
+
+        <!-- 2. CAPACITOR C1: 1000 µF (D2 [+] y D4 [-]) -->
+        <g id="c1-laser">
+          <circle cx="237" cy="199" r="32" fill="#ffffff" stroke="#0f172a" stroke-width="2.5"/>
+          <line x1="237" y1="167" x2="269" y2="199" stroke="#0f172a" stroke-width="1.5"/>
+          <text x="248" y="195" fill="#0f172a" font-size="11" font-weight="bold" text-anchor="middle">C1</text>
+          <text x="248" y="210" fill="#0f172a" font-size="9.5" text-anchor="middle">1000 µF</text>
+          <!-- Terminales -->
+          <circle cx="223" cy="170" r="5" fill="#ffffff" stroke="#0f172a" stroke-width="2"/>
+          <text x="210" y="174" fill="#0f172a" font-size="12" font-weight="bold">+</text>
+          <circle cx="223" cy="227" r="5" fill="#0f172a"/>
+          <text x="210" y="231" fill="#0f172a" font-size="13" font-weight="bold">-</text>
+        </g>
+
+        <!-- 3. CAPACITOR CERÁMICO C2: 100 nF (F2 y F4) -->
+        <g id="c2-laser">
+          <rect x="274" y="180" width="12" height="38" rx="3" fill="#ffffff" stroke="#0f172a" stroke-width="2"/>
+          <text x="280" y="155" fill="#0f172a" font-size="10" font-weight="bold" text-anchor="middle">C2: 104</text>
+          <circle cx="280" cy="170" r="4" fill="#ffffff" stroke="#0f172a" stroke-width="2"/>
+          <circle cx="280" cy="227" r="4" fill="#ffffff" stroke="#0f172a" stroke-width="2"/>
+        </g>
+
+        <!-- 4. DIODO 1N4007 D1: Entre H2 y L2 -->
+        <g id="d1-laser">
+          <line x1="337" y1="170" x2="451" y2="170" stroke="#0f172a" stroke-width="2.5"/>
+          <rect x="365" y="158" width="55" height="24" rx="2" fill="#ffffff" stroke="#0f172a" stroke-width="2"/>
+          <!-- Franja indicadora del cátodo (hachurada/rellena clara) -->
+          <rect x="408" y="158" width="10" height="24" fill="#cbd5e1" stroke="#0f172a" stroke-width="1.5"/>
+          <text x="386" y="174" fill="#0f172a" font-size="9" font-weight="bold" text-anchor="middle">1N4007</text>
+          <text x="337" y="152" fill="#0f172a" font-size="9.5" font-weight="bold" text-anchor="middle">Ánodo (H2)</text>
+          <text x="451" y="152" fill="#0f172a" font-size="9.5" font-weight="bold" text-anchor="middle">Cátodo (L2)</text>
+          <circle cx="337" cy="170" r="4.5" fill="#ffffff" stroke="#0f172a" stroke-width="2"/>
+          <circle cx="451" cy="170" r="4.5" fill="#ffffff" stroke="#0f172a" stroke-width="2"/>
+        </g>
+
+        <!-- 5. PÍXEL DE SACRIFICIO BUFFER (LED 0): N2, N3, N4, P3 -->
+        <g id="pixel-laser">
+          <rect x="495" y="155" width="85" height="85" rx="6" fill="#ffffff" stroke="#0f172a" stroke-width="2"/>
+          <circle cx="537" cy="197" r="16" fill="#ffffff" stroke="#0f172a" stroke-width="2"/>
+          <text x="537" y="201" fill="#0f172a" font-size="9" font-weight="bold" text-anchor="middle">LED 0</text>
+          <text x="537" y="145" fill="#0f172a" font-size="10" font-weight="bold" text-anchor="middle">Píxel Buffer</text>
+
+          <!-- Pines del píxel -->
+          <circle cx="508" cy="170" r="4.5" fill="#ffffff" stroke="#0f172a" stroke-width="2"/>
+          <text x="495" y="174" fill="#0f172a" font-size="8" font-weight="bold" text-anchor="end">VCC (N2)</text>
+
+          <circle cx="508" cy="199" r="4.5" fill="#ffffff" stroke="#0f172a" stroke-width="2"/>
+          <text x="495" y="202" fill="#0f172a" font-size="8" font-weight="bold" text-anchor="end">DIN (N3)</text>
+
+          <circle cx="508" cy="227" r="4.5" fill="#0f172a"/>
+          <text x="495" y="231" fill="#0f172a" font-size="8" font-weight="bold" text-anchor="end">GND (N4)</text>
+
+          <circle cx="565" cy="199" r="4.5" fill="#ffffff" stroke="#0f172a" stroke-width="2"/>
+          <text x="578" y="202" fill="#0f172a" font-size="8" font-weight="bold">DOUT (P3)</text>
+        </g>
+
+        <!-- 6. RESISTENCIA R2: 330 Ω (Entre P3 y Q3) -->
+        <g id="r2-laser">
+          <line x1="565" y1="199" x2="594" y2="199" stroke="#0f172a" stroke-width="2"/>
+          <rect x="572" y="191" width="20" height="16" rx="2" fill="#ffffff" stroke="#0f172a" stroke-width="1.8"/>
+          <text x="582" y="184" fill="#0f172a" font-size="8.5" font-weight="bold" text-anchor="middle">330Ω</text>
+          <circle cx="594" cy="199" r="4" fill="#ffffff" stroke="#0f172a" stroke-width="2"/>
+        </g>
+
+        <!-- 7. BORNERA J2: SALIDA TABLERO (R1, R3, R5) -->
+        <g id="j2-laser">
+          <rect x="605" y="125" width="36" height="145" rx="4" fill="#ffffff" stroke="#0f172a" stroke-width="2"/>
+          <circle cx="622" cy="142" r="7" fill="#ffffff" stroke="#0f172a" stroke-width="2"/>
+          <circle cx="622" cy="199" r="7" fill="#ffffff" stroke="#0f172a" stroke-width="2"/>
+          <circle cx="622" cy="256" r="7" fill="#ffffff" stroke="#0f172a" stroke-width="2"/>
+          <text x="622" y="115" fill="#0f172a" font-size="10.5" font-weight="bold" text-anchor="middle">J2: TABLERO</text>
+          <text x="595" y="146" fill="#0f172a" font-size="9" font-weight="bold" text-anchor="end">+5V (R1)</text>
+          <text x="560" y="215" fill="#0f172a" font-size="9" font-weight="bold" text-anchor="end">DATA (R3)</text>
+          <text x="595" y="260" fill="#0f172a" font-size="9" font-weight="bold" text-anchor="end">GND (R5)</text>
+        </g>
+
+        <!-- 8. ESP32-C3 SUPERMINI (Filas 9 a 16, Columnas F a L) -->
+        <g id="esp32-laser">
+          <rect x="265" y="355" width="200" height="235" rx="6" fill="#ffffff" stroke="#0f172a" stroke-width="2.5"/>
+          <rect x="265" y="355" width="200" height="28" rx="6" fill="#f1f5f9" stroke="#0f172a" stroke-width="1.5"/>
+          <text x="365" y="374" fill="#0f172a" font-size="12" font-weight="bold" text-anchor="middle">ESP32-C3 SuperMini</text>
+
+          <!-- Conector USB-C arriba -->
+          <rect x="335" y="345" width="60" height="18" rx="3" fill="#ffffff" stroke="#0f172a" stroke-width="1.8"/>
+          <text x="365" y="358" fill="#0f172a" font-size="8.5" font-weight="bold" text-anchor="middle">USB-C</text>
+
+          <!-- Chip microcontrolador SoC -->
+          <rect x="325" y="420" width="80" height="75" rx="3" fill="#ffffff" stroke="#0f172a" stroke-width="1.5"/>
+          <text x="365" y="455" fill="#0f172a" font-size="9.5" font-weight="bold" text-anchor="middle">ESP32-C3</text>
+          <text x="365" y="470" fill="#64748b" font-size="8" text-anchor="middle">RISC-V 160MHz</text>
+
+          <!-- Antena cerámica IPEX abajo -->
+          <rect x="345" y="555" width="40" height="25" rx="2" fill="#f1f5f9" stroke="#0f172a" stroke-width="1.5"/>
+          <text x="365" y="571" fill="#0f172a" font-size="8.5" font-weight="bold" text-anchor="middle">ANT</text>
+
+          <!-- PINES FILA IZQUIERDA (Columna F: F9 a F16) -->
+          <g font-size="8.5" fill="#0f172a" font-weight="bold">
+            <circle cx="280" cy="370" r="4.5" fill="#ffffff" stroke="#0f172a" stroke-width="1.5"/><text x="292" y="373">G0</text>
+            <circle cx="280" cy="398" r="4.5" fill="#ffffff" stroke="#0f172a" stroke-width="1.5"/><text x="292" y="401">G1</text>
+            <circle cx="280" cy="427" r="4.5" fill="#ffffff" stroke="#0f172a" stroke-width="1.5"/><text x="292" y="430">G2</text>
+            <circle cx="280" cy="455" r="4.5" fill="#ffffff" stroke="#0f172a" stroke-width="1.5"/><text x="292" y="458">G3</text>
+            <!-- GPIO 4 (F13): DATA -->
+            <circle cx="280" cy="484" r="5.5" fill="#ffffff" stroke="#0f172a" stroke-width="2.5"/><text x="292" y="487">G4 (DATA)</text>
+            <!-- GPIO 5 (F14): RELÉ -->
+            <circle cx="280" cy="512" r="5.5" fill="#ffffff" stroke="#0f172a" stroke-width="2.5"/><text x="292" y="515">G5 (RELÉ)</text>
+            <!-- GPIO 6 (F15): BUZZER -->
+            <circle cx="280" cy="541" r="5.5" fill="#ffffff" stroke="#0f172a" stroke-width="2.5"/><text x="292" y="544">G6 (BUZ)</text>
+            <circle cx="280" cy="569" r="4.5" fill="#ffffff" stroke="#0f172a" stroke-width="1.5"/><text x="292" y="572">G7</text>
+          </g>
+
+          <!-- PINES FILA DERECHA (Columna L: L9 a L16) -->
+          <g font-size="8.5" fill="#0f172a" font-weight="bold" text-anchor="end">
+            <!-- 5V (VIN en L9) -->
+            <circle cx="451" cy="370" r="5.5" fill="#ffffff" stroke="#0f172a" stroke-width="2.5"/><text x="439" y="373">5V (VIN)</text>
+            <!-- GND en L10 -->
+            <circle cx="451" cy="398" r="5.5" fill="#0f172a"/><text x="439" y="401">GND</text>
+            <circle cx="451" cy="427" r="4.5" fill="#ffffff" stroke="#0f172a" stroke-width="1.5"/><text x="439" y="430">3V3</text>
+            <circle cx="451" cy="455" r="4.5" fill="#ffffff" stroke="#0f172a" stroke-width="1.5"/><text x="439" y="458">G8</text>
+            <circle cx="451" cy="484" r="4.5" fill="#ffffff" stroke="#0f172a" stroke-width="1.5"/><text x="439" y="487">G9</text>
+            <circle cx="451" cy="512" r="4.5" fill="#ffffff" stroke="#0f172a" stroke-width="1.5"/><text x="439" y="515">G10</text>
+            <circle cx="451" cy="541" r="4.5" fill="#ffffff" stroke="#0f172a" stroke-width="1.5"/><text x="439" y="544">RX</text>
+            <circle cx="451" cy="569" r="4.5" fill="#ffffff" stroke="#0f172a" stroke-width="1.5"/><text x="439" y="572">TX</text>
+          </g>
+        </g>
+
+        <!-- 9. BORNERA J3: RELÉ SIRENA (B13, B15, B17) -->
+        <g id="j3-laser">
+          <rect x="146" y="468" width="40" height="145" rx="4" fill="#ffffff" stroke="#0f172a" stroke-width="2"/>
+          <circle cx="166" cy="484" r="7" fill="#ffffff" stroke="#0f172a" stroke-width="2"/>
+          <circle cx="166" cy="541" r="7" fill="#ffffff" stroke="#0f172a" stroke-width="2"/>
+          <circle cx="166" cy="598" r="7" fill="#ffffff" stroke="#0f172a" stroke-width="2"/>
+          <text x="166" y="455" fill="#0f172a" font-size="10.5" font-weight="bold" text-anchor="middle">J3: RELÉ</text>
+          <text x="194" y="488" fill="#0f172a" font-size="9" font-weight="bold">VCC (B13)</text>
+          <text x="194" y="545" fill="#0f172a" font-size="9" font-weight="bold">IN (B15)</text>
+          <text x="194" y="602" fill="#0f172a" font-size="9" font-weight="bold">GND (B17)</text>
+        </g>
+
+        <!-- 10. BUZZER BZ1 (N14 a P14) -->
+        <g id="buzzer-laser">
+          <circle cx="537" cy="512" r="28" fill="#ffffff" stroke="#0f172a" stroke-width="2"/>
+          <circle cx="537" cy="512" r="6" fill="#0f172a"/>
+          <text x="537" y="475" fill="#0f172a" font-size="9.5" font-weight="bold" text-anchor="middle">BUZZER BZ1</text>
+          <circle cx="508" cy="512" r="4.5" fill="#ffffff" stroke="#0f172a" stroke-width="2"/>
+          <text x="495" y="516" fill="#0f172a" font-size="9" font-weight="bold" text-anchor="end">+</text>
+          <circle cx="565" cy="512" r="4.5" fill="#0f172a"/>
+          <text x="578" y="516" fill="#0f172a" font-size="9" font-weight="bold">-</text>
+        </g>
+
+      </svg>
+    </div>
+  </div>
+
+  <!-- HOJA 2: VISTA INFERIOR (BOTTOM VIEW - PISTAS Y PUENTES DE SOLDADURA) -->
+  <div class="sheet">
+    <div class="sheet-title">
+      <h2>2. Vista Inferior (Bottom View / Lado de Soldadura) · Cómo Tirar los Puentes</h2>
+      <span class="badge">Visto Girando la Placa</span>
+    </div>
+
+    <div class="svg-box">
+      <!-- VISTA INFERIOR (ESPEJADA HORIZONTALMENTE PARA SOLDAR DIRECTO DE ATRÁS) -->
+      <svg viewBox="0 0 760 520" width="700" height="480" xmlns="http://www.w3.org/2000/svg">
+        <rect x="0" y="0" width="760" height="520" fill="#ffffff"/>
+        
+        <!-- Contorno de placa -->
+        <rect x="80" y="40" width="600" height="440" rx="10" fill="#ffffff" stroke="#0f172a" stroke-width="2.5"/>
+        <text x="380" y="28" fill="#0f172a" font-size="12" font-weight="bold" text-anchor="middle">LADO INFERIOR DE SOLDADURA (PISTAS Y PUENTES CON ESTAÑO Y CABLES)</text>
+
+        <!-- 1. LÍNEA POSITIVA +5V (Línea sólida gruesa con trazo distintivo) -->
+        <g id="tracks-5v" stroke="#dc2626" stroke-width="4" fill="none">
+          <!-- Entrada B2 a C1 (D2), C2 (F2), Diodo (H2) -->
+          <line x1="600" y1="100" x2="420" y2="100"/>
+          <!-- Derivación a 5V del ESP32 (L9) -->
+          <polyline points="480,100 480,220 310,220"/>
+          <!-- Derivación a Bornera J2 Tablero (+5V en R1) -->
+          <polyline points="600,100 600,60 140,60 140,80"/>
+          <!-- Derivación a Bornera J3 Relé (VCC en B13) -->
+          <polyline points="600,100 600,320"/>
+        </g>
+        <text x="540" y="85" fill="#dc2626" font-size="11" font-weight="bold">RIEL +5V (Alambre grueso 1 mm²)</text>
+
+        <!-- 2. LÍNEA DE MASA GND (Línea punteada gruesa o azul oscuro) -->
+        <g id="tracks-gnd" stroke="#0284c7" stroke-width="4" stroke-dasharray="8,4" fill="none">
+          <!-- B4 a D4 (C1), F4 (C2), N4 (GND Píxel) -->
+          <line x1="600" y1="140" x2="250" y2="140"/>
+          <!-- GND al ESP32 (L10) -->
+          <polyline points="480,140 480,245 310,245"/>
+          <!-- GND a J2 Tablero (R5) -->
+          <polyline points="250,140 140,140 140,170"/>
+          <!-- GND a J3 Relé (B17) -->
+          <polyline points="600,140 600,410"/>
+          <!-- GND a Buzzer -->
+          <polyline points="250,140 250,370"/>
+        </g>
+        <text x="380" y="130" fill="#0284c7" font-size="11" font-weight="bold">RIEL GND COMÚN (Punteado azul / Malla)</text>
+
+        <!-- 3. PUENTE DE 4.3V (Diodo L2 a VCC Píxel N2) -->
+        <line x1="310" y1="100" x2="250" y2="100" stroke="#ea580c" stroke-width="3"/>
+        <circle cx="310" cy="100" r="5" fill="#ea580c"/>
+        <circle cx="250" cy="100" r="5" fill="#ea580c"/>
+        <text x="280" y="88" fill="#ea580c" font-size="10" font-weight="bold" text-anchor="middle">+4.3V (D1 ➔ Buffer)</text>
+
+        <!-- 4. LÍNEA DE DATOS (GPIO 4 a DIN, DOUT a R2, R2 a Bornera Tablero) -->
+        <g stroke="#16a34a" stroke-width="3" fill="none">
+          <!-- GPIO 4 (F13) a DIN (N3) -->
+          <polyline points="480,300 380,300 380,118 250,118"/>
+          <!-- DOUT (P3) a R2 (Q3) y a Bornera DATA (R3) -->
+          <line x1="195" y1="118" x2="140" y2="118"/>
+        </g>
+        <circle cx="480" cy="300" r="5" fill="#16a34a"/>
+        <circle cx="250" cy="118" r="5" fill="#16a34a"/>
+        <circle cx="140" cy="118" r="5" fill="#16a34a"/>
+        <text x="360" y="290" fill="#16a34a" font-size="10.5" font-weight="bold">DATOS WS2811 (GPIO 4 ➔ Buffer ➔ R2 ➔ J2)</text>
+
+        <!-- 5. LÍNEA DE DISPARO RELÉ (GPIO 5 a IN Relé) -->
+        <polyline points="480,325 540,325 540,365 600,365" stroke="#9333ea" stroke-width="2.5" fill="none"/>
+        <circle cx="480" cy="325" r="4.5" fill="#9333ea"/>
+        <circle cx="600" cy="365" r="4.5" fill="#9333ea"/>
+        <text x="530" y="355" fill="#9333ea" font-size="10" font-weight="bold">RELÉ (GPIO 5)</text>
+
+        <!-- 6. LÍNEA DE BUZZER (GPIO 6 a Buzzer +) -->
+        <polyline points="480,350 310,350 310,370 250,370" stroke="#ca8a04" stroke-width="2.5" fill="none"/>
+        <circle cx="480" cy="350" r="4.5" fill="#ca8a04"/>
+        <circle cx="250" cy="370" r="4.5" fill="#ca8a04"/>
+        <text x="380" y="365" fill="#ca8a04" font-size="10" font-weight="bold">BUZZER (GPIO 6)</text>
+      </svg>
+    </div>
+  </div>
+
+  <!-- HOJA 3: TABLA DE COORDENADAS Y REGLAS DE SOLDADURA -->
+  <div class="sheet">
+    <div class="sheet-title">
+      <h2>3. Tabla de Coordenadas de Agujeros y Pasos de Armado</h2>
+      <span class="badge">Referencia Rápida</span>
+    </div>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Componente</th>
+          <th>Designador</th>
+          <th>Agujeros Exactos</th>
+          <th>Detalle de Conexión</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Bornera Entrada 5V</strong></td>
+          <td>J1 (2 Bornes)</td>
+          <td><strong>B2</strong> (+5V) y <strong>B4</strong> (GND)</td>
+          <td>Entrada directa desde los cables gruesos de la fuente conmutada.</td>
+        </tr>
+        <tr>
+          <td><strong>Capacitor 1000 µF / 16V</strong></td>
+          <td>C1</td>
+          <td><strong>D2</strong> (+) y <strong>D4</strong> (-)</td>
+          <td>Pata positiva larga en D2. Pata negativa (franja blanca) en D4.</td>
+        </tr>
+        <tr>
+          <td><strong>Capacitor 100 nF (104)</strong></td>
+          <td>C2</td>
+          <td><strong>F2</strong> (+) y <strong>F4</strong> (-)</td>
+          <td>Cerámico sin polaridad pegado a los rieles de entrada.</td>
+        </tr>
+        <tr>
+          <td><strong>Diodo 1N4007</strong></td>
+          <td>D1</td>
+          <td><strong>H2</strong> (Ánodo) ➔ <strong>L2</strong> (Cátodo franja)</td>
+          <td>Ánodo en H2 (+5V). Cátodo (franja plateada) en L2 (entrega ~4.3V).</td>
+        </tr>
+        <tr>
+          <td><strong>Píxel Buffer Sacrificado</strong></td>
+          <td>LED 0</td>
+          <td>
+            <strong>N2</strong>: VCC (+4.3V)<br>
+            <strong>N3</strong>: DIN (Datos 3.3V)<br>
+            <strong>N4</strong>: GND<br>
+            <strong>P3</strong>: DOUT (Datos 5V)
+          </td>
+          <td>
+            N2 conectado a L2 (Cátodo del diodo).<br>
+            N3 conectado a F13 (GPIO 4 del ESP32).<br>
+            N4 conectado al riel común de masa.<br>
+            P3 conectado al extremo de la resistencia R2.
+          </td>
+        </tr>
+        <tr>
+          <td><strong>Resistencia 330 Ω</strong></td>
+          <td>R2</td>
+          <td><strong>P3</strong> ➔ <strong>Q3</strong></td>
+          <td>Amortiguador de línea entre DOUT y la bornera de salida.</td>
+        </tr>
+        <tr>
+          <td><strong>Bornera Salida Tablero</strong></td>
+          <td>J2 (3 Bornes)</td>
+          <td>
+            <strong>R1</strong>: +5V (Directo fuente)<br>
+            <strong>R3</strong>: DATA (desde R2)<br>
+            <strong>R5</strong>: GND (Masa común)
+          </td>
+          <td>Conecta directo a la cinta WS2811 del tablero de básquet.</td>
+        </tr>
+        <tr>
+          <td><strong>ESP32-C3 SuperMini</strong></td>
+          <td>U1</td>
+          <td>
+            <strong>L9</strong>: Pin 5V (VIN)<br>
+            <strong>L10</strong>: Pin GND<br>
+            <strong>F13</strong>: GPIO 4 (Datos)<br>
+            <strong>F14</strong>: GPIO 5 (Relé)<br>
+            <strong>F15</strong>: GPIO 6 (Buzzer)
+          </td>
+          <td>
+            Montado sobre zócalos hembra tipo tira pinheader de 8 pines cada lado.
+          </td>
+        </tr>
+        <tr>
+          <td><strong>Bornera Relé Sirena</strong></td>
+          <td>J3 (3 Bornes)</td>
+          <td><strong>B13</strong> (+5V), <strong>B15</strong> (IN Relé), <strong>B17</strong> (GND)</td>
+          <td>Va hacia los 3 pines de control del módulo de relé optoacoplado de 12V.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="alert-box">
+      <strong>⚠️ Regla clave para evitar píxeles rojos y parpadeos:</strong>
+      <ol class="step-list">
+        <li>El capacitor <strong>C1 (1000 µF)</strong> debe estar físicamente pegado a la bornera J1.</li>
+        <li>El cable positivo que alimenta al <strong>LED de sacrificio (N2)</strong> debe salir <strong>únicamente del cátodo del diodo 1N4007 (L2)</strong> para que trabaje a ~4.3V.</li>
+        <li>El riel de +5V y GND que va a la bornera del tablero (R1 y R5) debe hacerse con cable de <strong>1.0 mm²</strong> para que no haya caída de tensión en el tablero.</li>
+      </ol>
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>
